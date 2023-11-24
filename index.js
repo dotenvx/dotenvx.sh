@@ -21,6 +21,16 @@ app.get('/:os/:arch', async (req, res) => {
     version = 'latest'
   }
 
+  // Convert .tgz to .tar.gz
+  if (arch.endsWith('.tgz')) {
+    arch = arch.replace('.tgz', '.tar.gz')
+  }
+
+  // Default to .tar.gz if no extension is provided
+  if (!arch.includes('.')) {
+    arch += '.tar.gz'
+  }
+
   // Constructing the URL to which we will proxy
   const proxyUrl = `https://dotenvx.com/releases/${version}/dotenvx-${os}-${arch}.tar.gz`
 
