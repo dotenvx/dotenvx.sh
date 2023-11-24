@@ -152,10 +152,10 @@ if [ $# -gt 0 ]; then
 elif [ $(basename "/$0") != 'installer.sh' ]; then
   # ^^ temporary exception for action.ts
 
-  if type eval >/dev/null 2>&1; then
-    # we `type eval` as on Travis there was no `eval`!
-    eval "$(dotenvx --shellcode)" 2>/dev/null
-  fi
+  # if type eval >/dev/null 2>&1; then
+  #   # we `type eval` as on Travis there was no `eval`!
+  #   eval "$(dotenvx --shellcode)" 2>/dev/null
+  # fi
 
   if ! _is_ci; then
     echo "now type: dotenvx --help" >&2
