@@ -1,6 +1,7 @@
 const express = require('express')
 const axios = require('axios')
 const path = require('path')
+const fs = require('fs')
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -75,7 +76,15 @@ app.get('/VERSION', async (req, res) => {
 
 app.get('/installer.sh', (req, res) => {
   const scriptPath = path.join(__dirname, 'installer.sh')
-  res.sendFile(scriptPath)
+
+  fs.readFile(scriptPath, 'utf8', (err, data) => {
+    if (err) {
+      res.status(500).send('Error reading the file')
+      return
+    }
+    res.type('text/plain')
+    res.send(data)
+  })
 })
 
 app.listen(port, () => {
