@@ -1,4 +1,4 @@
-![curl -fsS https://dotenvx.sh/ | sh](https://dotenvx.github.io/binary-banner.png)
+![curl -fsS https://dotenvx.sh/ | sh](https://dotenvx.com/binary-banner.png)
 ```sh
 curl -fsS https://dotenvx.sh/ | sh
 ```
