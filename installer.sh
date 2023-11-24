@@ -64,7 +64,7 @@ _install_dotenvx() {
     pipe="$tmpdir/pipe"
     mkfifo "$pipe"
 
-    curl $progress --fail --proto '=https' "https://dotenvx.sh/$(uname)/$(uname -m)".tgz > "$pipe" &
+    curl $progress --fail --proto '=https' "https://dotenvsh-9b5a80cf7480.herokuapp.com/$(uname)/$(uname -m)".tgz > "$pipe" &
     $SUDO sh -c "
       mkdir -p /usr/local/bin
       tar xz --directory /usr/local/bin < '$pipe'
@@ -83,7 +83,7 @@ _install_dotenvx() {
 
   else
     curl $progress --fail --proto '=https' \
-        "https://dotenvx.sh/$(uname)/$(uname -m)".tgz \
+        "https://dotenvsh-9b5a80cf7480.herokuapp.com/$(uname)/$(uname -m)".tgz \
       | tar xz --directory "$tmpdir"
 
     export PATH="$tmpdir:$PATH"
@@ -96,7 +96,7 @@ _install_dotenvx() {
 _dotenvx_is_old() {
   v="$(/usr/local/bin/dotenvx --version || echo dotenvx 0)"
   /usr/local/bin/dotenvx --silent semverator gt \
-    $(curl -Ssf https://dotenvx.sh/VERSION) \
+    $(curl -Ssf https://dotenvsh-9b5a80cf7480.herokuapp.com/VERSION) \
     $(echo $v | awk '{print $2}')
 }
 
