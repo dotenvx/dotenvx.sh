@@ -72,6 +72,11 @@ app.get('/VERSION', async (req, res) => {
   }
 })
 
+app.get('/installer.sh', (req, res) => {
+  const scriptPath = path.join(__dirname, 'installer.sh')
+  res.sendFile(scriptPath)
+})
+
 app.listen(port, () => {
   console.log(`Server is running on http://:${port}`)
 })
