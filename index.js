@@ -6,7 +6,7 @@ const app = express()
 const port = process.env.PORT || 3000
 
 app.get('/', (req, res) => {
-  res.send('dotenvx.sh')
+  res.send('curl -fsS https://dotenv.sh | sh')
 })
 
 app.get('/:os/:arch', async (req, res) => {
