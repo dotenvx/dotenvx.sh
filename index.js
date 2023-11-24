@@ -9,7 +9,7 @@ app.get('/', (req, res) => {
 
 app.get('/:os/:arch', async (req, res) => {
   const os = req.params.os.toLowerCase()
-  const arch = req.params.arch.toLowerCase()
+  let arch = req.params.arch.toLowerCase()
   let version = req.query.version
 
   // Check if version is provided and prepend 'v' if necessary
@@ -32,7 +32,7 @@ app.get('/:os/:arch', async (req, res) => {
   }
 
   // Constructing the URL to which we will proxy
-  const proxyUrl = `https://dotenvx.com/releases/${version}/dotenvx-${os}-${arch}.tar.gz`
+  const proxyUrl = `https://dotenvx.com/releases/${version}/dotenvx-${os}-${arch}`
 
   try {
     // Using axios to get a response stream
