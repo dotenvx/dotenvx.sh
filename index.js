@@ -5,8 +5,26 @@ const fs = require('fs')
 const app = express()
 const port = process.env.PORT || 3000
 
+// Read the installer script once at the start
+const installerScriptPath = path.join(__dirname, 'installer.sh')
+let installerScript = ''
+fs.readFile(installerScriptPath, 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading installer script', err)
+    process.exit(1) // Exit if the script cannot be read
+  }
+  installerScript = data
+})
+
 app.get('/', (req, res) => {
-  res.send('curl -fsS https://dotenv.sh | sh')
+  // Check User-Agent to determine the response
+  const userAgent = req.headers['user-agent']
+  if (userAgent.includes('curl') || userAgent.includes('wget')) {
+    res.type('text/plain')
+    res.send(installerScript)
+  } else {
+    res.send('curl -fsS https://dotenv.sh | sh')
+  }
 })
 
 app.get('/:os/:arch', async (req, res) => {
