@@ -22,19 +22,7 @@ fs.readFile(installerScriptPath, 'utf8', (err, data) => {
   installerScript = data
 })
 
-const umamiVisitMiddleware = async (req, res, next) => {
-  // example: {
-  // "type":"event",
-  // "payload":{
-  //   "website":"1234",
-  //   "hostname":"dotenvx.com",
-  //   "screen":"568x791",
-  //   "language":"en-US",
-  //   "title":"dotenvx | Secrets for developers",
-  //   "url":"/",
-  //   "referrer":""
-  // }}
-
+const umamiVisitMiddleware = (req, res, next) => {
   const payload = {
     website: UMAMI_WEBSITE_ID,
     hostname: req.get('host'),
@@ -58,8 +46,7 @@ const umamiVisitMiddleware = async (req, res, next) => {
   }
 
   try {
-    console.log('payload', payload)
-    const reply = await axios.post(UMAMI_SEND_URL, postData, options)
+    axios.post(UMAMI_SEND_URL, postData, options)
   } catch (error) {
     console.error('Error sending page visit to Umami:', error)
     console.error('postData', postData)
