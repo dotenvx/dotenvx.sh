@@ -130,5 +130,5 @@ app.get('/installer.sh', (req, res) => {
 })
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://:${port}`)
+  console.log(`Server is running on http://:${PORT}`)
 })
