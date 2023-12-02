@@ -57,10 +57,6 @@ app.get('/:os/:arch', async (req, res) => {
   }
 
   // Constructing the URL to which we will proxy
-  // see: https://github.com/dotenvx/releases/tree/main which maps to dotenvx.com/releases/**/*
-  const proxyUrl = `https://dotenvx.com/releases/${version}/${filename}`
-
-  // Constructing the URL to which we will proxy
   let proxyUrl;
   if (version === 'latest') {
     // dotenvx.com/releases URL for the latest version (https://github.com/dotenvx/releases)
