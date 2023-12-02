@@ -6,6 +6,9 @@ const app = express()
 
 const PORT = process.env.PORT || 3000
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
+const UMAMI_ROOT_URL = 'https://dotenv-umami-fd0ec6de187e.herokuapp.com'
+const UMAMI_WEBSITE_ID = process.env.UMAMI_WEBSITE_ID
+const UMAMI_COLLECT_URL = `${UMAMI_ROOT_URL}/api/collect`
 
 // Read the installer script once at the start
 const installerScriptPath = path.join(__dirname, 'installer.sh')
@@ -17,6 +20,33 @@ fs.readFile(installerScriptPath, 'utf8', (err, data) => {
   }
   installerScript = data
 })
+
+const umamiVisitMiddleware = async (req, res, next) => {
+  // Construct the full URL from the request object
+  const protocol = req.protocol
+  const host = req.get('host')
+  const originalUrl = req.originalUrl
+  const url = `${protocol}://${host}${originalUrl}`
+
+  const visit = {
+    website: UMAMI_WEBSITE_ID,
+    url,
+    referrer: req.get('referrer') || '',
+    user_agent: req.headers['user-agent'],
+    type: 'pageview'
+  }
+
+  try {
+    await axios.post(UMAMI_COLLECT_URL, visit)
+  } catch (error) {
+    console.error('Error sending page visit to Umami:', error)
+  }
+
+  next() // Continue to the next middleware/route handler
+}
+
+// umami visits
+app.use(umamiVisitMiddleware)
 
 app.get('/', (req, res) => {
   // Check User-Agent to determine the response
@@ -75,7 +105,7 @@ app.get('/:os/:arch', async (req, res) => {
     }
 
     // If the URL is a GitHub URL, add the Authorization header - 5,000 requests per hour
-    if (proxyUrl.includes("github.com")) {
+    if (proxyUrl.includes('github.com')) {
       config.headers = {
         Authorization: `token ${GITHUB_TOKEN}`
       }
@@ -101,7 +131,7 @@ app.get('/VERSION', async (req, res) => {
   try {
     // Using axios to get the response as text
     const response = await axios.get(proxyUrl, {
-      responseType: 'text'  // Fetch as plain text
+      responseType: 'text' // Fetch as plain text
     })
 
     res.type('text/plain')
