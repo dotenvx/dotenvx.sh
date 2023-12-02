@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 const UMAMI_ROOT_URL = 'https://dotenv-umami-fd0ec6de187e.herokuapp.com'
 const UMAMI_WEBSITE_ID = process.env.UMAMI_WEBSITE_ID
-const UMAMI_COLLECT_URL = `${UMAMI_ROOT_URL}/api/collect`
+const UMAMI_SEND_URL = `${UMAMI_ROOT_URL}/api/send`
 
 // Read the installer script once at the start
 const installerScriptPath = path.join(__dirname, 'installer.sh')
@@ -22,22 +22,22 @@ fs.readFile(installerScriptPath, 'utf8', (err, data) => {
 })
 
 const umamiVisitMiddleware = async (req, res, next) => {
-  // Construct the full URL from the request object
-  const protocol = req.protocol
-  const host = req.get('host')
-  const originalUrl = req.originalUrl
-  const url = `${protocol}://${host}${originalUrl}`
+  // example: {"type":"event","payload":{"website":"1234","hostname":"dotenvx.com","screen":"568x791","language":"en-US","title":"dotenvx | Secrets for developers","url":"/","referrer":""}}
 
-  const visit = {
+  const payload = {
     website: UMAMI_WEBSITE_ID,
-    url,
+    hostname: req.get('host'),
+    url: req.originalUrl,
     referrer: req.get('referrer') || '',
-    user_agent: req.headers['user-agent'],
-    type: 'pageview'
+  }
+
+  const json = {
+    type: 'json',
+    payload: payload
   }
 
   try {
-    await axios.post(UMAMI_COLLECT_URL, visit)
+    await axios.post(UMAMI_SEND_URL, json)
   } catch (error) {
     console.error('Error sending page visit to Umami:', error)
     console.log('visit', visit)
