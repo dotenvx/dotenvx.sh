@@ -47,7 +47,8 @@ const umamiVisitMiddleware = async (req, res, next) => {
 
   const postData = {
     type: 'event',
-    payload: payload
+    payload: payload,
+    userIp: req.ip
   }
 
   const options = {
@@ -58,8 +59,6 @@ const umamiVisitMiddleware = async (req, res, next) => {
 
   try {
     const reply = await axios.post(UMAMI_SEND_URL, postData, options)
-    console.log('reply', reply)
-    console.log('postData', postData)
   } catch (error) {
     console.error('Error sending page visit to Umami:', error)
     console.error('postData', postData)
