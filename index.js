@@ -37,7 +37,8 @@ const umamiVisitMiddleware = async (req, res, next) => {
   }
 
   try {
-    await axios.post(UMAMI_SEND_URL, json)
+    const reply = await axios.post(UMAMI_SEND_URL, json)
+    console.log('reply', reply)
   } catch (error) {
     console.error('Error sending page visit to Umami:', error)
     console.error('json', json)
