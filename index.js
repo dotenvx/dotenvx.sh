@@ -40,6 +40,9 @@ const umamiVisitMiddleware = async (req, res, next) => {
     await axios.post(UMAMI_COLLECT_URL, visit)
   } catch (error) {
     console.error('Error sending page visit to Umami:', error)
+    console.log('visit', visit)
+    console.log('url', url)
+    console.log('UMAMI_COLLECT_URL', UMAMI_COLLECT_URL)
   }
 
   next() // Continue to the next middleware/route handler
