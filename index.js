@@ -51,8 +51,14 @@ app.get('/:os/:arch', async (req, res) => {
     arch += '.tar.gz'
   }
 
+  let filename = `dotenvx-${os}-${arch}`
+  if (version !== 'latest') {
+    filename = `dotenvx-${version.replace('v', '')}-${os}-${arch}`
+  }
+
   // Constructing the URL to which we will proxy
-  const proxyUrl = `https://dotenvx.com/releases/${version}/dotenvx-${os}-${arch}`
+  // see: https://github.com/dotenvx/releases/tree/main which maps to dotenvx.com/releases/**/*
+  const proxyUrl = `https://dotenvx.com/releases/${version}/${filename}`
 
   try {
     // Using axios to get a response stream
