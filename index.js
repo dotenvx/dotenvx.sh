@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
     res.type('text/plain')
     res.send(installerScript)
   } else {
-    res.send('curl -fsS https://dotenvx.sh | sh')
+    res.redirect('https://dotenvx.com')
   }
 })
 
