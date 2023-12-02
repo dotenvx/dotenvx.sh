@@ -32,7 +32,7 @@ const umamiVisitMiddleware = async (req, res, next) => {
   }
 
   const json = {
-    type: 'json',
+    type: 'event',
     payload: payload
   }
 
