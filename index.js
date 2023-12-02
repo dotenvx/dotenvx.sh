@@ -3,7 +3,9 @@ const axios = require('axios')
 const path = require('path')
 const fs = require('fs')
 const app = express()
-const port = process.env.PORT || 3000
+
+const PORT = process.env.PORT || 3000
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 
 // Read the installer script once at the start
 const installerScriptPath = path.join(__dirname, 'installer.sh')
@@ -57,21 +59,30 @@ app.get('/:os/:arch', async (req, res) => {
   }
 
   // Constructing the URL to which we will proxy
-  let proxyUrl;
+  let proxyUrl
   if (version === 'latest') {
     // dotenvx.com/releases URL for the latest version (https://github.com/dotenvx/releases)
-    proxyUrl = `https://dotenvx.com/releases/${version}/${filename}`;
+    proxyUrl = `https://dotenvx.com/releases/${version}/${filename}`
   } else {
     // GitHub releases URL for specific versions
     // https://github.com/dotenvx/dotenvx/releases/download/v0.6.9/dotenvx-0.6.9-darwin-amd64.tar.gz
-    proxyUrl = `https://github.com/dotenvx/dotenvx/releases/download/${version}/${filename}`;
+    proxyUrl = `https://github.com/dotenvx/dotenvx/releases/download/${version}/${filename}`
   }
 
   try {
-    // Using axios to get a response stream
-    const response = await axios.get(proxyUrl, {
+    const config = {
       responseType: 'stream'
-    })
+    }
+
+    // If the URL is a GitHub URL, add the Authorization header - 5,000 requests per hour
+    if (proxyUrl.includes("github.com")) {
+      config.headers = {
+        Authorization: `token ${GITHUB_TOKEN}`
+      }
+    }
+
+    // Using axios to get a response stream
+    const response = await axios.get(proxyUrl, config)
 
     // Setting headers for the response
     res.setHeader('Content-Type', response.headers['content-type'])
@@ -118,6 +129,6 @@ app.get('/installer.sh', (req, res) => {
   })
 })
 
-app.listen(port, () => {
+app.listen(PORT, () => {
   console.log(`Server is running on http://:${port}`)
 })
