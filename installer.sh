@@ -158,6 +158,6 @@ elif [ $(basename "/$0") != 'installer.sh' ]; then
   # fi
 
   if ! _is_ci; then
-    echo "now type: dotenvx --help" >&2
+    echo "now type: dotenvx help" >&2
   fi
 fi
