@@ -96,23 +96,18 @@ app.get('/:os/:arch', async (req, res) => {
 })
 
 app.get('/VERSION', async (req, res) => {
-  // Construct the URL to proxy the request to /releases/VERSION
   const proxyUrl = 'https://dotenvx.com/releases/VERSION'
 
   try {
-    // Using axios to get a response stream
+    // Using axios to get the response as text
     const response = await axios.get(proxyUrl, {
-      responseType: 'stream'
+      responseType: 'text'  // Fetch as plain text
     })
 
-    // Setting headers for the response
-    res.setHeader('Content-Type', response.headers['content-type'])
-    res.setHeader('Content-Length', response.headers['content-length'])
-
-    // Piping the response stream to the client
-    response.data.pipe(res)
+    res.type('text/plain')
+    res.send(response.data)
   } catch (error) {
-    res.status(500).send('Error occurred while fetching the file: ' + error.message)
+    res.status(500).send('Error occurred while fetching the data: ' + error.message)
   }
 })
 
