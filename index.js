@@ -60,6 +60,17 @@ app.get('/:os/:arch', async (req, res) => {
   // see: https://github.com/dotenvx/releases/tree/main which maps to dotenvx.com/releases/**/*
   const proxyUrl = `https://dotenvx.com/releases/${version}/${filename}`
 
+  // Constructing the URL to which we will proxy
+  let proxyUrl;
+  if (version === 'latest') {
+    // dotenvx.com/releases URL for the latest version (https://github.com/dotenvx/releases)
+    proxyUrl = `https://dotenvx.com/releases/${version}/${filename}`;
+  } else {
+    // GitHub releases URL for specific versions
+    // https://github.com/dotenvx/dotenvx/releases/download/v0.6.9/dotenvx-0.6.9-darwin-amd64.tar.gz
+    proxyUrl = `https://github.com/dotenvx/dotenvx/releases/download/${version}/${filename}`;
+  }
+
   try {
     // Using axios to get a response stream
     const response = await axios.get(proxyUrl, {
