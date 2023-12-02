@@ -9,6 +9,7 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 const UMAMI_ROOT_URL = 'https://dotenv-umami-fd0ec6de187e.herokuapp.com'
 const UMAMI_WEBSITE_ID = process.env.UMAMI_WEBSITE_ID
 const UMAMI_SEND_URL = `${UMAMI_ROOT_URL}/api/send`
+const SPOOFED_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
 
 // Read the installer script once at the start
 const installerScriptPath = path.join(__dirname, 'installer.sh')
@@ -44,14 +45,19 @@ const umamiVisitMiddleware = async (req, res, next) => {
     referrer: req.get('referrer') || '',
   }
 
-  const json = {
+  const postData = {
     type: 'event',
-    payload: payload,
-    user_agent: req.headers['user-agent']
+    payload: payload
+  }
+
+  const options = {
+    headers: {
+      'User-Agent': SPOOFED_USER_AGENT // otherwise, umami ignores https://github.com/umami-software/umami/blob/7fb74feeaf399b89866e8b368a5bfbe91349f848/src/pages/api/send.ts#L77
+    }
   }
 
   try {
-    const reply = await axios.post(UMAMI_SEND_URL, json)
+    const reply = await axios.post(UMAMI_SEND_URL, postData, options)
     console.log('reply', reply)
     console.log('json', json)
   } catch (error) {
