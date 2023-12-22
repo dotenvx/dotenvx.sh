@@ -56,7 +56,7 @@ const umamiVisitMiddleware = (req, res, next) => {
 }
 
 // umami visits
-app.use(umamiVisitMiddleware)
+// app.use(umamiVisitMiddleware)
 
 app.get('/', (req, res) => {
   // Check User-Agent to determine the response
