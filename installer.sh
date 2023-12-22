@@ -12,6 +12,8 @@ elif test -d /usr/local -a ! -w /usr/local; then
   SUDO="sudo"
 elif test -d /usr -a ! -w /usr; then
   SUDO="sudo"
+elif test -d /usr/bin -a ! -w /usr/bin; then
+  SUDO="sudo"
 fi
 
 _install_pre_reqs() {
