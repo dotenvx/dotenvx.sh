@@ -6,41 +6,32 @@ if test -n "$VERBOSE" -o -n "$GITHUB_ACTIONS" -a -n "$RUNNER_DEBUG"; then
   set -x
 fi
 
+_install_pre_reqs() {
+  if test -f /etc/debian_version; then
+    apt update --yes
+
+    case $(cat /etc/debian_version) in
+    jessie/sid|8.*|stretch/sid|9.*)
+      apt --yes install sudo;;
+    buster/sid|10.*)
+      apt --yes install sudo;;
+    bullseye/sid|11.*)
+      apt --yes install sudo;;
+    bookworm/sid|12.*|*)
+      apt --yes install sudo;;
+    esac
+  fi
+}
+
+_install_pre_reqs
+
 if test -d /usr/local/bin -a ! -w /usr/local/bin; then
   SUDO="sudo"
 elif test -d /usr/local -a ! -w /usr/local; then
   SUDO="sudo"
 elif test -d /usr -a ! -w /usr; then
   SUDO="sudo"
-elif test -d /usr/bin -a ! -w /usr/bin; then
-  SUDO="sudo"
 fi
-
-_install_pre_reqs() {
-  if test -f /etc/debian_version; then
-    apt update --yes
-
-    # minimal but required or networking doesnâ€™t work
-    # https://packages.debian.org/buster/all/netbase/filelist
-    A=netbase
-
-    # difficult to pkg in our opinion
-    B=libudev-dev
-
-    case $(cat /etc/debian_version) in
-    jessie/sid|8.*|stretch/sid|9.*)
-      apt --yes install libc-dev libstdc++-4.8-dev libgcc-4.7-dev $A $B;;
-    buster/sid|10.*)
-      apt --yes install libc-dev libstdc++-8-dev libgcc-8-dev $A $B;;
-    bullseye/sid|11.*)
-      apt --yes install libc-dev libstdc++-10-dev libgcc-9-dev $A $B;;
-    bookworm/sid|12.*|*)
-      apt --yes install libc-dev libstdc++-11-dev libgcc-11-dev $A $B;;
-    esac
-  elif test -f /etc/fedora-release; then
-    $SUDO yum --assumeyes install libatomic
-  fi
-}
 
 _is_ci() {
   [ -n "$CI" ] && [ $CI != 0 ]
@@ -146,8 +137,6 @@ else
   }
   unset SUDO
 fi
-
-_install_pre_reqs
 
 if [ $# -gt 0 ]; then
   dotenvx "$@"
