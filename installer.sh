@@ -8,17 +8,17 @@ fi
 
 _install_pre_reqs() {
   if test -f /etc/debian_version; then
-    apt-get update --yes
+    apt-get update --yes 2>/dev/null
 
     case $(cat /etc/debian_version) in
     jessie/sid|8.*|stretch/sid|9.*)
-      apt-get --yes install sudo;;
+      apt-get --yes install sudo 2>/dev/null;;
     buster/sid|10.*)
-      apt-get --yes install sudo;;
+      apt-get --yes install sudo 2>/dev/null;;
     bullseye/sid|11.*)
-      apt-get --yes install sudo;;
+      apt-get --yes install sudo 2>/dev/null;;
     bookworm/sid|12.*|*)
-      apt-get --yes install sudo;;
+      apt-get --yes install sudo 2>/dev/null;;
     esac
   fi
 }
