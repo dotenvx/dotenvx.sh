@@ -60,7 +60,7 @@ const umamiVisitMiddleware = (req, res, next) => {
 
 app.get('/', (req, res) => {
   // Check User-Agent to determine the response
-  const userAgent = req.headers['user-agent']
+  const userAgent = req.headers['user-agent'] || ''
   if (userAgent.includes('curl') || userAgent.includes('wget')) {
     res.type('text/plain')
     res.send(installerScript)
