@@ -13,8 +13,9 @@ jobs:
         with:
           node-version: 16.x
       - run: |
-          git clone https://github.com/shellspec/shellspec.git
+          git clone https://github.com/shellspec/shellspec.git shellspec
           cd shellspec && sudo make install
+          sudo cp shellspec/shellspec /usr/bin/shellspec
       - run: npm install
       - run: npm run standard
       - run: npm run test
