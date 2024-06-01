@@ -4,7 +4,7 @@ set -e
 
 # default values
 VERSION="0.44.1"
-INSTALLATION_DIRECTORY="/usr/local/bin"
+DIRECTORY="/usr/local/bin"
 
 usage() {
   echo "Usage: $0 [options] [command]"
@@ -12,16 +12,16 @@ usage() {
   echo "install dotenvx – a better dotenv"
   echo ""
   echo "Options:"
-  echo "  --path            set the installation directory, default is /usr/local/bin"
-  echo "  --version         set the version of dotenvx to install, for example: --version=0.44.1"
+  echo "  --directory       directory to install dotenvx to (default: \"/usr/local/bin\")"
+  echo "  --version         version of dotenvx to install (default: \"$VERSION\")"
   echo ""
   echo "Commands:"
   echo "  install           install dotenvx"
   echo "  help              display help"
 }
 
-installation_directory() {
-  local dir=$INSTALLATION_DIRECTORY
+directory() {
+  local dir=$DIRECTORY
 
   case "$dir" in
   ~*/*)
@@ -36,11 +36,11 @@ installation_directory() {
   return 0
 }
 
-is_installation_directory_writable() {
+is_directory_writable() {
   # check installation directory is writable
-  if [ ! -w "$(installation_directory)" ] && [ "$(id -u)" -ne 0 ]; then
-    echo "[INSTALLATION_FAILED] the installation directory [$(installation_directory)] is not writable by the current user"
-    echo "? run as root [sudo $0] or choose a writable directory like your current directory [$0 path=.]"
+  if [ ! -w "$(directory)" ] && [ "$(id -u)" -ne 0 ]; then
+    echo "[INSTALLATION_FAILED] the installation directory [$(directory)] is not writable by the current user"
+    echo "? run as root [sudo $0] or choose a writable directory like your current directory [$0 directory=.]"
 
     return 1
   fi
@@ -48,11 +48,76 @@ is_installation_directory_writable() {
   return 0
 }
 
+is_curl_installed() {
+  if ! command -v curl >/dev/null 2>&1; then
+    echo "[INSTALLATION_FAILED] curl is required and appears to not be installed"
+    echo "? install curl and try again"
+
+    exit 1
+  fi
+
+  return 0
+}
+
+os() {
+  echo "$(uname -s | tr '[:upper:]' '[:lower:]')"
+
+  return 0
+}
+
+arch() {
+  echo "$(uname -m | tr '[:upper:]' '[:lower:]')"
+
+  return 0
+}
+
+is_os_supported() {
+  local os="$(os)"
+
+  case "$os" in
+  linux) os="linux" ;;
+  darwin) os="darwin" ;;
+  *)
+    echo "[INSTALLATION_FAILED] your operating system ${os} is currently unsupported"
+    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx.sh/issues]"
+
+    return 1
+    ;;
+  esac
+
+  return 0
+}
+
+is_arch_supported() {
+  local arch="$(arch)"
+
+  case "$arch" in
+  x86_64) arch="x86_64" ;;
+  amd64) arch="amd64" ;;
+  arm64) arch="arm64" ;;
+  aarch64) arch="aarch64" ;;
+  *)
+    echo "[INSTALLATION_FAILED] your architecture ${arch} is currently unsupported - must be x86_64, amd64, arm64, or aarch64"
+    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx.sh/issues]"
+
+    return 1
+    ;;
+  esac
+
+  return 0
+}
+
+os_arch() {
+  echo "$(os)-$(arch)"
+
+  return 0
+}
+
 # parse arguments
 for arg in "$@"; do
   case $arg in
-  path=* | --path=*)
-    INSTALLATION_DIRECTORY="${arg#*=}"
+  directory=* | --directory=*)
+    DIRECTORY="${arg#*=}"
     ;;
   help | --help)
     usage
@@ -67,4 +132,9 @@ for arg in "$@"; do
   esac
 done
 
-echo "success"
+is_directory_writable
+is_curl_installed
+is_os_supported
+is_arch_supported
+
+echo "os: $(os) arch: $(arch)"

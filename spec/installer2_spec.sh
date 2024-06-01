@@ -1,18 +1,17 @@
 Describe 'installer2.sh'
-  Include installer2.sh
+  Include installer2.sh directory=./spec/tmp
 
   setup() {
     VERSION="0.44.1"
-    INSTALLATION_DIRECTORY="/usr/local/bin"
   }
 
   mock_home() {
     HOME="/home/testuser"
-    INSTALLATION_DIRECTORY="~/testdir"
+    DIRECTORY="~/testdir"
   }
 
-  mock_writable_directory() {
-    INSTALLATION_DIRECTORY="$(pwd)/tmp/"
+  mock_unwritable_directory() {
+    DIRECTORY="/usr/local/bin" # requires root/sudo
   }
 
   BeforeEach 'setup'
@@ -23,43 +22,9 @@ Describe 'installer2.sh'
       The output should equal "0.44.1"
     End
 
-    It 'checks default INSTALLATION_DIRECTORY'
-      When call echo "$INSTALLATION_DIRECTORY"
-      The output should equal "/usr/local/bin"
-    End
-  End
-
-  Describe 'installation_directory()'
-    It 'smartly returns installation_directory as default INSTALL_DIR'
-      When call installation_directory
-      The output should equal "/usr/local/bin"
-    End
-
-    Describe 'when home directory'
-      Before 'mock_home'
-
-      It 'expands ~ to home directory'
-        When call installation_directory
-        The output should equal "/home/testuser/testdir"
-      End
-    End
-  End
-
-  Describe 'is_installation_directory_writable()'
-    It 'is false (1) to /usr/local/bin (typical case that /usr/local/bin is not writable)'
-      When call is_installation_directory_writable
-      The status should equal 1
-      The output should equal "[INSTALLATION_FAILED] the installation directory [/usr/local/bin] is not writable by the current user
-? run as root [sudo /bin/sh] or choose a writable directory like your current directory [/bin/sh path=.]"
-    End
-
-    Describe 'when writable directory'
-      Before 'mock_writable_directory'
-
-      It 'is true (0)'
-        When call is_installation_directory_writable
-        The status should equal 0
-      End
+    It 'checks default DIRECTORY'
+      When call echo "$DIRECTORY"
+      The output should equal "./spec/tmp"
     End
   End
 
@@ -71,12 +36,91 @@ Describe 'installer2.sh'
 install dotenvx – a better dotenv
 
 Options:
-  --path            set the installation directory, default is /usr/local/bin
-  --version         set the version of dotenvx to install, for example: --version=0.44.1
+  --directory       directory to install dotenvx to (default: \"/usr/local/bin\")
+  --version         version of dotenvx to install (default: \"0.44.1\")
 
 Commands:
   install           install dotenvx
   help              display help"
+    End
+  End
+
+  Describe 'directory()'
+    It 'smartly returns directory as default INSTALL_DIR'
+      When call directory
+      The output should equal "./spec/tmp"
+    End
+
+    Describe 'when home directory'
+      Before 'mock_home'
+
+      It 'expands ~ to home directory'
+        When call directory
+        The output should equal "/home/testuser/testdir"
+      End
+    End
+  End
+
+  Describe 'is_directory_writable()'
+    It 'is true (0)'
+      When call is_directory_writable
+      The status should equal 0
+    End
+
+    Describe 'when unwritable directory'
+      Before 'mock_unwritable_directory'
+
+      It 'is false (1) to /usr/local/bin (typical case that /usr/local/bin is not writable)'
+        When call is_directory_writable
+        The status should equal 1
+        The output should equal "[INSTALLATION_FAILED] the installation directory [/usr/local/bin] is not writable by the current user
+? run as root [sudo /bin/sh] or choose a writable directory like your current directory [/bin/sh directory=.]"
+      End
+    End
+  End
+
+  Describe 'is_curl_installed()'
+    It 'is true (0) (typical case that /usr/bin/curl is installed)'
+      When call is_curl_installed
+      The status should equal 0
+    End
+  End
+
+  Describe 'os()'
+    It 'returns current os lowercased'
+      When call os
+      The status should equal 0
+      The output should equal "$(uname -s | tr '[:upper:]' '[:lower:]')"
+    End
+  End
+
+  Describe 'arch()'
+    It 'returns current arch lowercased'
+      When call arch
+      The status should equal 0
+      The output should equal "$(uname -m | tr '[:upper:]' '[:lower:]')"
+    End
+  End
+
+  Describe 'is_os_supported()'
+    It 'returns true'
+      When call is_os_supported
+      The status should equal 0
+    End
+  End
+
+  Describe 'is_arch_supported()'
+    It 'returns true'
+      When call is_arch_supported
+      The status should equal 0
+    End
+  End
+
+  Describe 'os_arch()'
+    It 'returns the combined values'
+      When call os_arch
+      The status should equal 0
+      The output should equal "$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]')"
     End
   End
 End
