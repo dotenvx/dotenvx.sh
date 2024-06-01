@@ -15,7 +15,7 @@ jobs:
       - run: |
           git clone https://github.com/shellspec/shellspec.git shellspec
           cd shellspec && sudo make install
-          sudo cp shellspec/shellspec /usr/bin/shellspec
+          sudo cp shellspec /usr/bin/shellspec
       - run: npm install
       - run: npm run standard
       - run: npm run test
