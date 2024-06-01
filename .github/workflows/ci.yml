@@ -12,7 +12,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 16.x
-      - run: curl -fsSL https://git.io/shellspec | sh > /dev/null
+      - run: |
+          git clone https://github.com/shellspec/shellspec.git
+          cd shellspec && sudo make install
       - run: npm install
       - run: npm run standard
       - run: npm run test
