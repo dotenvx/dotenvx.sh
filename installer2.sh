@@ -132,9 +132,9 @@ for arg in "$@"; do
   esac
 done
 
-is_directory_writable
-is_curl_installed
-is_os_supported
-is_arch_supported
-
-echo "os: $(os) arch: $(arch)"
+# is_directory_writable
+# is_curl_installed
+# is_os_supported
+# is_arch_supported
+# echo "os: $(os) arch: $(arch)"
+echo "hello"
