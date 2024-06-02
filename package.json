@@ -2,7 +2,7 @@
   "scripts": {
     "standard": "standard",
     "standard:fix": "standard --fix",
-    "test": "shellspec"
+    "test": "bash shellspec"
   },
   "dependencies": {
     "axios": "^1.6.2",

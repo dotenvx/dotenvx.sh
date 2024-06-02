@@ -11,7 +11,7 @@ Describe 'installer2.sh'
   }
 
   mock_unwritable_directory() {
-    DIRECTORY="/usr/local/bin" # requires root/sudo
+    DIRECTORY="/usr/local/testing-installer" # requires root/sudo
   }
 
   BeforeEach 'setup'
@@ -31,7 +31,7 @@ Describe 'installer2.sh'
   Describe 'usage()'
     It 'displays usage'
       When call usage
-      The output should equal "Usage: /bin/sh [options] [command]
+      The output should equal "Usage: $0 [options] [command]
 
 install dotenvx – a better dotenv
 
@@ -70,11 +70,11 @@ Commands:
     Describe 'when unwritable directory'
       Before 'mock_unwritable_directory'
 
-      It 'is false (1) to /usr/local/bin (typical case that /usr/local/bin is not writable)'
+      It 'is false (1) to /usr/local/testing-installer (typical case that /usr/local/testing-installer is not writable)'
         When call is_directory_writable
         The status should equal 1
-        The output should equal "[INSTALLATION_FAILED] the installation directory [/usr/local/bin] is not writable by the current user
-? run as root [sudo /bin/sh] or choose a writable directory like your current directory [/bin/sh directory=.]"
+        The output should equal "[INSTALLATION_FAILED] the installation directory [/usr/local/testing-installer] is not writable by the current user
+? run as root [sudo $0] or choose a writable directory like your current directory [$0 directory=.]"
       End
     End
   End
