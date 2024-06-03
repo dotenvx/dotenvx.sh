@@ -131,6 +131,10 @@ download_url() {
   return 0
 }
 
+is_ci() {
+  [ -n "$CI" ] && [ $CI != 0 ]
+}
+
 # parse arguments
 for arg in "$@"; do
   case $arg in
