@@ -113,6 +113,24 @@ os_arch() {
   return 0
 }
 
+version() {
+  echo "$VERSION"
+
+  return 0
+}
+
+filename() {
+  echo "dotenvx-$(version)-$(os_arch).tar.gz"
+
+  return 0
+}
+
+download_url() {
+  echo "https://github.com/dotenvx/dotenvx/releases/download/v$(version)/$(filename)"
+
+  return 0
+}
+
 # parse arguments
 for arg in "$@"; do
   case $arg in

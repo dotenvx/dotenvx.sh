@@ -123,4 +123,20 @@ Commands:
       The output should equal "$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]')"
     End
   End
+
+  Describe 'filename()'
+    It 'returns the combined values'
+      When call filename
+      The status should equal 0
+      The output should equal "dotenvx-0.44.1-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]').tar.gz"
+    End
+  End
+
+  Describe 'download_url()'
+    It 'returns the combined values'
+      When call download_url
+      The status should equal 0
+      The output should equal "https://github.com/dotenvx/dotenvx/releases/download/v0.44.1/dotenvx-0.44.1-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]').tar.gz"
+    End
+  End
 End
