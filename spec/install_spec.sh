@@ -1,5 +1,5 @@
-Describe 'installer2.sh'
-  Include installer2.sh directory=./spec/tmp
+Describe 'install.sh'
+  Include install.sh directory=./spec/tmp
 
   setup() {
     VERSION="0.44.1"
