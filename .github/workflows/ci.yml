@@ -17,4 +17,4 @@ jobs:
       - run: which shellspec
       - run: npm install
       - run: npm run standard
-      - run: bash shellspec
+      - run: npm test
