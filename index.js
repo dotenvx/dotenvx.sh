@@ -6,10 +6,6 @@ const app = express()
 
 const PORT = process.env.PORT || 3000
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
-const UMAMI_ROOT_URL = 'https://dotenv-umami-fd0ec6de187e.herokuapp.com'
-const UMAMI_WEBSITE_ID = process.env.UMAMI_WEBSITE_ID
-const UMAMI_SEND_URL = `${UMAMI_ROOT_URL}/api/send`
-const SPOOFED_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
 
 // Read the installer script once at the start
 const installerScriptPath = path.join(__dirname, 'installer.sh')
@@ -21,42 +17,6 @@ fs.readFile(installerScriptPath, 'utf8', (err, data) => {
   }
   installerScript = data
 })
-
-const umamiVisitMiddleware = (req, res, next) => {
-  const payload = {
-    website: UMAMI_WEBSITE_ID,
-    hostname: req.get('host'),
-    screen: '1920x1080',
-    language: 'en-US',
-    title: req.originalUrl,
-    url: req.originalUrl,
-    referrer: req.get('referrer') || '',
-  }
-
-  const postData = {
-    type: 'event',
-    payload: payload,
-    userIp: req.ip
-  }
-
-  const options = {
-    headers: {
-      'User-Agent': SPOOFED_USER_AGENT // otherwise, umami ignores https://github.com/umami-software/umami/blob/7fb74feeaf399b89866e8b368a5bfbe91349f848/src/pages/api/send.ts#L77
-    }
-  }
-
-  try {
-    axios.post(UMAMI_SEND_URL, postData, options)
-  } catch (error) {
-    console.error('Error sending page visit to Umami:', error)
-    console.error('postData', postData)
-  }
-
-  next() // Continue to the next middleware/route handler
-}
-
-// umami visits
-// app.use(umamiVisitMiddleware)
 
 app.get('/', (req, res) => {
   // Check User-Agent to determine the response
