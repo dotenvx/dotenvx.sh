@@ -124,6 +124,19 @@ app.get('/installer.sh', (req, res) => {
   })
 })
 
+app.get('/install.sh', (req, res) => {
+  const scriptPath = path.join(__dirname, 'install.sh')
+
+  fs.readFile(scriptPath, 'utf8', (err, data) => {
+    if (err) {
+      res.status(500).send('Error reading the file')
+      return
+    }
+    res.type('text/plain')
+    res.send(data)
+  })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://:${PORT}`)
 })
