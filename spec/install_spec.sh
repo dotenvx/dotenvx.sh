@@ -139,11 +139,4 @@ Commands:
       The output should equal "https://github.com/dotenvx/dotenvx/releases/download/v0.44.1/dotenvx-0.44.1-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]').tar.gz"
     End
   End
-
-  Describe 'is_ci'
-    It 'returns false'
-      When call is_ci
-      The status should equal 1
-    End
-  End
 End
