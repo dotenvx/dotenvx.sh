@@ -40,7 +40,7 @@ is_directory_writable() {
   # check installation directory is writable
   if [ ! -w "$(directory)" ] && [ "$(id -u)" -ne 0 ]; then
     echo "[INSTALLATION_FAILED] the installation directory [$(directory)] is not writable by the current user"
-    echo "? run as root [sudo $0] or choose a writable directory like your current directory [$0 directory=.]"
+    echo "? run as root [sudo $0] or choose a writable directory like your current directory [$0 --directory=.]"
 
     return 1
   fi
@@ -113,20 +113,14 @@ os_arch() {
   return 0
 }
 
-version() {
-  echo "$VERSION"
-
-  return 0
-}
-
 filename() {
-  echo "dotenvx-$(version)-$(os_arch).tar.gz"
+  echo "dotenvx-$VERSION-$(os_arch).tar.gz"
 
   return 0
 }
 
 download_url() {
-  echo "https://github.com/dotenvx/dotenvx/releases/download/v$(version)/$(filename)"
+  echo "https://github.com/dotenvx/dotenvx/releases/download/v$VERSION/$(filename)"
 
   return 0
 }
@@ -135,9 +129,83 @@ is_ci() {
   [ -n "$CI" ] && [ $CI != 0 ]
 }
 
+progress_bar() {
+  if $(is_ci); then
+    echo "--no-progress-meter"
+  else
+    echo "--progress-bar"
+  fi
+
+  return 0
+}
+
+warn_of_any_conflict() {
+  if [ "$(command which dotenvx)" != "$(directory)/dotenvx" ]; then
+    echo "[DOTENVX_CONFLICT] conflicting dotenvx found at $(command which dotenvx)" >&2
+    echo "[DOTENVX_CONFLICT] please update your path to include $(directory)" >&2
+  fi
+
+  return 0
+}
+
+is_installed() {
+  local flagged_version="$1"
+  local current_version=$("$(directory)/dotenvx" --version 2>/dev/null || echo "0")
+
+  # if --version flag passed
+  if [ -n "$flagged_version" ]; then
+    if [ "$current_version" = "$flagged_version" ]; then
+      echo "[dotenvx@$flagged_version] already installed ($(directory)/dotenvx)"
+
+      # return true since version already installed
+      return 0
+    else
+      # return false since version not installed
+      return 1
+    fi
+  fi
+
+  # if no version flag passed
+  if [ "$current_version" != "$VERSION" ]; then
+    # return false since latest is not installed
+    return 1
+  fi
+
+  echo "[dotenvx@$flagged_version] already installed ($(directory)/dotenvx)"
+
+  # return true since version already installed
+  return 0
+}
+
+install_dotenvx() {
+  # 0. override version
+  VERSION="${1:-$VERSION}"
+
+  # 1. setup tmpdir
+  local tmpdir=$(command mktemp -d)
+
+  # 2. download
+  curl $(progress_bar) --fail -L --proto '=https' -o "$tmpdir/$(filename)" "$(download_url)"
+
+  # 3. decompress to install directory
+  tar xz -C $(directory) -f "$tmpdir/$(filename)"
+
+  # 4. clean up
+  rm -r "$tmpdir"
+
+  # warn of any conflict
+  warn_of_any_conflict
+
+  # let user know
+  echo "[dotenvx@$VERSION] installed successfully ($(directory)/dotenvx)"
+}
+
 # parse arguments
 for arg in "$@"; do
   case $arg in
+  version=* | --version=*)
+    VERSION="${arg#*=}"
+    ;;
   directory=* | --directory=*)
     DIRECTORY="${arg#*=}"
     ;;
@@ -159,5 +227,16 @@ is_curl_installed
 is_os_supported
 is_arch_supported
 
-# echo "os: $(os) arch: $(arch)"
-echo "hello"
+# install logic
+if [ -n "$VERSION" ]; then
+  # Check if the specified version is already installed
+  if is_installed "$VERSION"; then
+    exit 0
+  else
+    install_dotenvx "$VERSION"
+  fi
+else
+  if ! is_installed; then
+    install_dotenvx
+  fi
+fi
