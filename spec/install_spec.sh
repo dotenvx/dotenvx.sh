@@ -74,7 +74,7 @@ Commands:
         When call is_directory_writable
         The status should equal 1
         The output should equal "[INSTALLATION_FAILED] the installation directory [/usr/local/testing-installer] is not writable by the current user
-? run as root [sudo $0] or choose a writable directory like your current directory [$0 directory=.]"
+? run as root [sudo $0] or choose a writable directory like your current directory [$0 --directory=.]"
       End
     End
   End

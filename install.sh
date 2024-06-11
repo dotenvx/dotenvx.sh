@@ -155,8 +155,6 @@ is_installed() {
   # if --version flag passed
   if [ -n "$flagged_version" ]; then
     if [ "$current_version" = "$flagged_version" ]; then
-      echo "[dotenvx@$flagged_version] already installed ($(directory)/dotenvx)"
-
       # return true since version already installed
       return 0
     else
@@ -231,12 +229,16 @@ is_arch_supported
 if [ -n "$VERSION" ]; then
   # Check if the specified version is already installed
   if is_installed "$VERSION"; then
+    echo "[dotenvx@$VERSION] already installed ($(directory)/dotenvx)"
     exit 0
   else
     install_dotenvx "$VERSION"
   fi
 else
-  if ! is_installed; then
+  if is_installed; then
+    echo "[dotenvx@$VERSION] already installed ($(directory)/dotenvx)"
+    exit 0
+  else
     install_dotenvx
   fi
 fi
