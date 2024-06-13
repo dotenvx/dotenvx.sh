@@ -38,7 +38,7 @@ directory() {
 
 is_directory_writable() {
   # check installation directory is writable
-  if [ ! -w "$(directory)" ] && [ "$(id -u)" -ne 0 ]; then
+  if [ ! -w "$(directory)" ]; then
     echo "[INSTALLATION_FAILED] the installation directory [$(directory)] is not writable by the current user"
     echo "? run as root [sudo $0] or choose a writable directory like your current directory [$0 --directory=.]"
 
@@ -139,10 +139,21 @@ progress_bar() {
   return 0
 }
 
+which_dotenvx() {
+  local result
+  result=$(command which dotenvx 2>/dev/null) # capture the output without displaying it on the screen
+
+  echo "$result"
+
+  return 0
+}
+
 warn_of_any_conflict() {
-  if [ "$(command which dotenvx)" != "$(directory)/dotenvx" ]; then
-    echo "[DOTENVX_CONFLICT] conflicting dotenvx found at $(command which dotenvx)" >&2
-    echo "[DOTENVX_CONFLICT] please update your path to include $(directory)" >&2
+  local dotenvx_path="$(which_dotenvx)"
+
+  if [ "$dotenvx_path" != "" ] && [ "$dotenvx_path" != "$(directory)/dotenvx" ]; then
+    echo "[DOTENVX_CONFLICT] conflicting dotenvx found at $dotenvx_path" >&2
+    echo "? we recommend updating your path to include $(directory)" >&2
   fi
 
   return 0
@@ -196,6 +207,8 @@ install_dotenvx() {
 
   # let user know
   echo "[dotenvx@$VERSION] installed successfully ($(directory)/dotenvx)"
+
+  return 0
 }
 
 main() {

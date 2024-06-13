@@ -5,6 +5,12 @@ Describe 'install.sh'
   setup() {
     VERSION="0.44.1"
     DIRECTORY="./spec/tmp"
+    CI=1
+  }
+
+  # remove the dotenvx binary before each test
+  cleanup() {
+    rm -f ./spec/tmp/dotenvx
   }
 
   mock_home() {
@@ -16,7 +22,26 @@ Describe 'install.sh'
     DIRECTORY="/usr/local/testing-installer" # requires root/sudo
   }
 
+  mock_which_dotenvx_empty() {
+    echo ""
+
+    return 0
+  }
+
+  mock_which_dotenvx_path_different() {
+    echo "/different/path"
+
+    return 0
+  }
+
+  preinstall_dotenvx() {
+    # Run the actual install_dotenvx function to install the binary
+    install_dotenvx
+  }
+
   BeforeEach 'setup'
+  BeforeEach 'cleanup'
+  AfterEach 'cleanup'
 
   Describe 'default values'
     It 'checks default VERSION'
@@ -143,9 +168,106 @@ Commands:
   End
 
   Describe 'is_installed()'
-    It 'returns the value'
+    It 'returns false'
       When call is_installed
       The status should equal 1
+    End
+
+    Describe 'when already installed'
+      Before 'preinstall_dotenvx'
+
+      It 'returns true'
+        When call is_installed
+        The status should equal 0
+      End
+    End
+  End
+
+  Describe 'which_dotenvx()'
+    which_dotenvx() {
+      mock_which_dotenvx_empty
+    }
+
+    It 'returns empty space'
+      When call which_dotenvx
+      The output should equal ""
+    End
+
+    Describe 'when a different path'
+      which_dotenvx() {
+        mock_which_dotenvx_path_different
+      }
+
+      It 'returns the different path'
+        When call which_dotenvx
+        The output should equal "/different/path"
+      End
+    End
+  End
+
+  Describe 'warn_of_any_conflict()'
+    which_dotenvx() {
+      mock_which_dotenvx_empty
+    }
+
+    It 'does not warn since which dotenvx is empty'
+      When call warn_of_any_conflict
+      The status should equal 0
+      The stderr should equal ""
+      The output should equal ""
+    End
+
+    Describe 'when a different path'
+      which_dotenvx() {
+        mock_which_dotenvx_path_different
+      }
+
+      It 'warns'
+        When call warn_of_any_conflict
+        The status should equal 0
+        The stderr should equal "[DOTENVX_CONFLICT] conflicting dotenvx found at /different/path
+? we recommend updating your path to include ./spec/tmp"
+      End
+    End
+  End
+
+  Describe 'install_dotenvx()'
+    # which_dotenvx() {
+    #   mock_which_dotenvx_empty
+    # }
+
+    # It 'installs it'
+    #   When call install_dotenvx
+    #   The status should equal 0
+    #   The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
+    # End
+
+    # Describe 'when a different path'
+    #   which_dotenvx() {
+    #     mock_which_dotenvx_path_different
+    #   }
+
+    #   It 'installs it but warns'
+    #     When call install_dotenvx
+    #     The status should equal 0
+    #   The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
+    #     The stderr should equal "[DOTENVX_CONFLICT] conflicting dotenvx found at /different/path
+# ? we#  recommend updating your path to include ./spec/tmp"
+    #   End
+    # End
+
+    Describe 'when already installed at same location'
+      which_dotenvx() {
+        mock_which_dotenvx_empty
+      }
+
+      Before 'preinstall_dotenvx'
+
+      It 'says already installed'
+        When call install_dotenvx
+        The status should equal 0
+        The output should equal "[dotenvx@0.44.1] already installed (./spec/tmp/dotenvx)"
+      End
     End
   End
 End
