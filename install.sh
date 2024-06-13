@@ -48,9 +48,6 @@ VERSION="0.44.1"
 DIRECTORY="/usr/local/bin"
 RELEASES_URL="https://github.com/dotenvx/dotenvx/releases"
 
-# for testing purposes
-TEST_MODE=0
-
 # usage
 usage() {
   echo "Usage: $0 [options] [command]"
@@ -175,6 +172,10 @@ download_url() {
 
 is_ci() {
   [ -n "$CI" ] && [ $CI != 0 ]
+}
+
+is_test_mode() {
+  [ -n "$TEST_MODE" ] && [ $TEST_MODE != 0 ]
 }
 
 progress_bar() {
@@ -333,9 +334,7 @@ main() {
   fi
 }
 
-if test -n "$TEST_MODE"; then
-  echo "running in test mode"
-else
+if ! is_test_mode; then
   main "$@"
   exit $?
 fi

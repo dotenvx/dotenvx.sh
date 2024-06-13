@@ -1,12 +1,12 @@
+export CI=1 # because we are running this on github actions and makes testing output easier
+export TEST_MODE=1 # set to test mode in order to not run main() for test purposes
+
 Describe 'install.sh'
-  # source the script without executing it immediately
-  . ./install.sh
+  Include install.sh
 
   setup() {
     VERSION="0.44.1"
     DIRECTORY="./spec/tmp"
-    CI=1
-    TEST_MODE=1
   }
 
   # remove the dotenvx binary before each test
@@ -59,6 +59,55 @@ Describe 'install.sh'
     It 'checks default DIRECTORY'
       When call echo "$DIRECTORY"
       The output should equal "./spec/tmp"
+    End
+  End
+
+  Describe 'is_ci()'
+    It 'returns true'
+      When call is_ci
+      The status should equal 0
+    End
+  End
+
+  Describe 'progress_bar()'
+    It 'returns --no-progress-meter (because is_ci is true)'
+      When call progress_bar
+      The status should equal 0
+      The output should equal "--no-progress-meter"
+    End
+
+    Describe 'when is_ci is true'
+      mock_is_ci_false() {
+        CI=0
+      }
+
+      Before 'mock_is_ci_false'
+
+      It 'returns --progress-bar'
+        When call progress_bar
+        The status should equal 0
+        The output should equal "--progress-bar"
+      End
+    End
+  End
+
+  Describe 'is_test_mode()'
+    It 'returns true'
+      When call is_test_mode
+      The status should equal 0
+    End
+
+    Describe 'typical case when TEST_MODE is false'
+      mock_is_test_mode_false() {
+        TEST_MODE=0
+      }
+
+      Before 'mock_is_test_mode_false'
+
+      It 'returns false'
+        When call is_test_mode
+        The status should equal 1
+      End
     End
   End
 
