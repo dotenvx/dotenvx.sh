@@ -49,9 +49,11 @@ is_directory_writable() {
 }
 
 is_curl_installed() {
-  if ! command -v curl >/dev/null 2>&1; then
+  local curl_path="$(which_curl)"
+
+  if [ -z "$curl_path" ]; then
     echo "[INSTALLATION_FAILED] curl is required and appears to not be installed"
-    echo "? install curl and try again"
+    echo "? install curl [$(install_curl_command)] and try again"
 
     return 1
   fi
@@ -139,9 +141,34 @@ progress_bar() {
   return 0
 }
 
+install_curl_command() {
+  if command -v apt-get >/dev/null 2>&1; then
+    echo "sudo apt-get update && sudo apt-get install -y curl"
+  elif command -v yum >/dev/null 2>&1; then
+    echo "sudo yum install -y curl"
+  elif command -v brew >/dev/null 2>&1; then
+    echo "brew install curl"
+  elif command -v pkg >/dev/null 2>&1; then
+    echo "sudo pkg install curl"
+  else
+    echo "install curl manually"
+  fi
+
+  return 0
+}
+
+which_curl() {
+  local result
+  result=$(command -v curl 2>/dev/null) # capture the output without displaying it on the screen
+
+  echo "$result"
+
+  return 0
+}
+
 which_dotenvx() {
   local result
-  result=$(command which dotenvx 2>/dev/null) # capture the output without displaying it on the screen
+  result=$(command -v dotenvx 2>/dev/null) # capture the output without displaying it on the screen
 
   echo "$result"
 

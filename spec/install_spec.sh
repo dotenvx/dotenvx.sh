@@ -22,6 +22,12 @@ Describe 'install.sh'
     DIRECTORY="/usr/local/testing-installer" # requires root/sudo
   }
 
+  mock_which_curl_empty() {
+    echo ""
+
+    return 0
+  }
+
   mock_which_dotenvx_empty() {
     echo ""
 
@@ -110,6 +116,19 @@ Commands:
     It 'is true (0) (typical case that /usr/bin/curl is installed)'
       When call is_curl_installed
       The status should equal 0
+    End
+
+    Describe 'no curl'
+      which_curl() {
+        mock_which_curl_empty
+      }
+
+      It 'is false (1)'
+        When call is_curl_installed
+        The status should equal 1
+        The output should equal "[INSTALLATION_FAILED] curl is required and appears to not be installed
+? install curl [$(install_curl_command)] and try again"
+      End
     End
   End
 
