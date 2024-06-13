@@ -126,7 +126,7 @@ Commands:
       It 'is false (1)'
         When call is_curl_installed
         The status should equal 1
-        The output should equal "[INSTALLATION_FAILED] curl is required and appears to not be installed
+        The output should equal "[INSTALLATION_FAILED] curl is required and is not installed
 ? install curl [$(install_curl_command)] and try again"
       End
     End

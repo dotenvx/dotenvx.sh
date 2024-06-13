@@ -52,7 +52,7 @@ is_curl_installed() {
   local curl_path="$(which_curl)"
 
   if [ -z "$curl_path" ]; then
-    echo "[INSTALLATION_FAILED] curl is required and appears to not be installed"
+    echo "[INSTALLATION_FAILED] curl is required and is not installed"
     echo "? install curl [$(install_curl_command)] and try again"
 
     return 1
