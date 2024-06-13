@@ -1,8 +1,16 @@
 Describe 'install.sh'
-  Include install.sh directory=./spec/tmp
+  # source the script without executing it immediately
+  . ./install.sh
 
   setup() {
     VERSION="0.44.1"
+    DIRECTORY="./spec/tmp"
+    CI=1
+  }
+
+  # remove the dotenvx binary before each test
+  cleanup() {
+    rm -f ./spec/tmp/dotenvx
   }
 
   mock_home() {
@@ -14,7 +22,32 @@ Describe 'install.sh'
     DIRECTORY="/usr/local/testing-installer" # requires root/sudo
   }
 
+  mock_which_curl_empty() {
+    echo ""
+
+    return 0
+  }
+
+  mock_which_dotenvx_empty() {
+    echo ""
+
+    return 0
+  }
+
+  mock_which_dotenvx_path_different() {
+    echo "/different/path"
+
+    return 0
+  }
+
+  preinstall_dotenvx() {
+    # Run the actual install_dotenvx function to install the binary
+    install_dotenvx > /dev/null
+  }
+
   BeforeEach 'setup'
+  BeforeEach 'cleanup'
+  AfterEach 'cleanup'
 
   Describe 'default values'
     It 'checks default VERSION'
@@ -74,7 +107,7 @@ Commands:
         When call is_directory_writable
         The status should equal 1
         The output should equal "[INSTALLATION_FAILED] the installation directory [/usr/local/testing-installer] is not writable by the current user
-? run as root [sudo $0] or choose a writable directory like your current directory [$0 directory=.]"
+? run as root [sudo $0] or choose a writable directory like your current directory [$0 --directory=.]"
       End
     End
   End
@@ -83,6 +116,19 @@ Commands:
     It 'is true (0) (typical case that /usr/bin/curl is installed)'
       When call is_curl_installed
       The status should equal 0
+    End
+
+    Describe 'no curl'
+      which_curl() {
+        mock_which_curl_empty
+      }
+
+      It 'is false (1)'
+        When call is_curl_installed
+        The status should equal 1
+        The output should equal "[INSTALLATION_FAILED] curl is required and is not installed
+? install curl [$(install_curl_command)] and try again"
+      End
     End
   End
 
@@ -121,6 +167,153 @@ Commands:
       When call os_arch
       The status should equal 0
       The output should equal "$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]')"
+    End
+  End
+
+  Describe 'filename()'
+    It 'returns the combined values'
+      When call filename
+      The status should equal 0
+      The output should equal "dotenvx-0.44.1-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]').tar.gz"
+    End
+  End
+
+  Describe 'download_url()'
+    It 'returns the combined values'
+      When call download_url
+      The status should equal 0
+      The output should equal "https://github.com/dotenvx/dotenvx/releases/download/v0.44.1/dotenvx-0.44.1-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]').tar.gz"
+    End
+  End
+
+  Describe 'is_installed()'
+    which_dotenvx() {
+      mock_which_dotenvx_empty
+    }
+
+    It 'returns false'
+      When call is_installed
+      The status should equal 1
+    End
+
+    Describe 'when already installed'
+      Before 'preinstall_dotenvx'
+
+      It 'returns true and outputs a message'
+        When call is_installed
+        The status should equal 0
+        The output should equal "[dotenvx@0.44.1] already installed (./spec/tmp/dotenvx)"
+      End
+    End
+  End
+
+  Describe 'which_dotenvx()'
+    which_dotenvx() {
+      mock_which_dotenvx_empty
+    }
+
+    It 'returns empty space'
+      When call which_dotenvx
+      The output should equal ""
+    End
+
+    Describe 'when a different path'
+      which_dotenvx() {
+        mock_which_dotenvx_path_different
+      }
+
+      It 'returns the different path'
+        When call which_dotenvx
+        The output should equal "/different/path"
+      End
+    End
+  End
+
+  Describe 'warn_of_any_conflict()'
+    which_dotenvx() {
+      mock_which_dotenvx_empty
+    }
+
+    It 'does not warn since which dotenvx is empty'
+      When call warn_of_any_conflict
+      The status should equal 0
+      The stderr should equal ""
+      The output should equal ""
+    End
+
+    Describe 'when a different path'
+      which_dotenvx() {
+        mock_which_dotenvx_path_different
+      }
+
+      It 'warns'
+        When call warn_of_any_conflict
+        The status should equal 0
+        The stderr should equal "[DOTENVX_CONFLICT] conflicting dotenvx found at /different/path
+? we recommend updating your path to include ./spec/tmp"
+      End
+    End
+  End
+
+  Describe 'install_dotenvx()'
+    which_dotenvx() {
+      mock_which_dotenvx_empty
+    }
+
+    It 'installs it'
+      When call install_dotenvx
+      The status should equal 0
+      The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
+    End
+
+    Describe 'when a different path'
+      which_dotenvx() {
+        mock_which_dotenvx_path_different
+      }
+
+      It 'installs it but warns'
+        When call install_dotenvx
+        The status should equal 0
+        The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
+        The stderr should equal "[DOTENVX_CONFLICT] conflicting dotenvx found at /different/path
+? we recommend updating your path to include ./spec/tmp"
+      End
+    End
+  End
+
+  Describe 'main()'
+    which_dotenvx() {
+      mock_which_dotenvx_empty
+    }
+
+    It 'installs dotenvx'
+      When call main
+      The status should equal 0
+      The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
+    End
+
+    Describe 'when a different path'
+      which_dotenvx() {
+        mock_which_dotenvx_path_different
+      }
+
+      It 'installs it but warns'
+        When call main
+        The status should equal 0
+        The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
+        The stderr should equal "[DOTENVX_CONFLICT] conflicting dotenvx found at /different/path
+? we recommend updating your path to include ./spec/tmp"
+      End
+    End
+
+    Describe 'when already installed at same location'
+      Before 'preinstall_dotenvx'
+
+      It 'says already installed'
+        When call main
+        The status should equal 0
+        The output should equal "[dotenvx@0.44.1] already installed (./spec/tmp/dotenvx)"
+      End
     End
   End
 End
