@@ -6,6 +6,7 @@ Describe 'install.sh'
     VERSION="0.44.1"
     DIRECTORY="./spec/tmp"
     CI=1
+    TEST_MODE=1
   }
 
   # remove the dotenvx binary before each test

@@ -48,6 +48,10 @@ VERSION="0.44.1"
 DIRECTORY="/usr/local/bin"
 RELEASES_URL="https://github.com/dotenvx/dotenvx/releases"
 
+# for testing purposes
+TEST_MODE=0
+
+# usage
 usage() {
   echo "Usage: $0 [options] [command]"
   echo ""
@@ -329,8 +333,9 @@ main() {
   fi
 }
 
-# execute main only if the script is run directly, not sourced
-if [[ "${BASH_SOURCE[0]}" == "$0" || "${BASH_EXECUTION_STRING}" == "$0" ]]; then
+if test -n "$TEST_MODE"; then
+  echo "running in test mode"
+else
   main "$@"
   exit $?
 fi
