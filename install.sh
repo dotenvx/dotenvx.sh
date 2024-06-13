@@ -198,47 +198,54 @@ install_dotenvx() {
   echo "[dotenvx@$VERSION] installed successfully ($(directory)/dotenvx)"
 }
 
-# parse arguments
-for arg in "$@"; do
-  case $arg in
-  version=* | --version=*)
-    VERSION="${arg#*=}"
-    ;;
-  directory=* | --directory=*)
-    DIRECTORY="${arg#*=}"
-    ;;
-  help | --help)
-    usage
-    exit 0
-    ;;
-  *)
-    # Unknown option
-    echo "Unknown option: $arg"
-    usage
-    exit 1
-    ;;
-  esac
-done
+main() {
+  # parse arguments
+  for arg in "$@"; do
+    case $arg in
+    version=* | --version=*)
+      VERSION="${arg#*=}"
+      ;;
+    directory=* | --directory=*)
+      DIRECTORY="${arg#*=}"
+      ;;
+    help | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      # Unknown option
+      echo "Unknown option: $arg"
+      usage
+      exit 1
+      ;;
+    esac
+  done
 
-is_directory_writable
-is_curl_installed
-is_os_supported
-is_arch_supported
+  is_directory_writable
+  is_curl_installed
+  is_os_supported
+  is_arch_supported
 
-# install logic
-if [ -n "$VERSION" ]; then
-  # Check if the specified version is already installed
-  if is_installed "$VERSION"; then
-    echo "[dotenvx@$VERSION] already installed ($(directory)/dotenvx)"
-    exit 0
+  # install logic
+  if [ -n "$VERSION" ]; then
+    # Check if the specified version is already installed
+    if is_installed "$VERSION"; then
+      echo "[dotenvx@$VERSION] already installed ($(directory)/dotenvx)"
+      exit 0
+    else
+      install_dotenvx "$VERSION"
+    fi
   else
-    install_dotenvx "$VERSION"
+    if is_installed; then
+      echo "[dotenvx@$VERSION] already installed ($(directory)/dotenvx)"
+      exit 0
+    else
+      install_dotenvx
+    fi
   fi
-else
-  if is_installed; then
-    echo "[dotenvx@$VERSION] already installed ($(directory)/dotenvx)"
-    exit 0
-  else
-    install_dotenvx
-  fi
+}
+
+# execute main only if the script is run directly, not sourced
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  main "$@"
 fi

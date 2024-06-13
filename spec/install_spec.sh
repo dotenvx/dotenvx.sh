@@ -1,8 +1,10 @@
 Describe 'install.sh'
-  Include install.sh directory=./spec/tmp
+  # source the script without executing it immediately
+  . ./install.sh
 
   setup() {
     VERSION="0.44.1"
+    DIRECTORY="./spec/tmp"
   }
 
   mock_home() {
@@ -137,6 +139,13 @@ Commands:
       When call download_url
       The status should equal 0
       The output should equal "https://github.com/dotenvx/dotenvx/releases/download/v0.44.1/dotenvx-0.44.1-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]').tar.gz"
+    End
+  End
+
+  Describe 'is_installed()'
+    It 'returns the value'
+      When call is_installed
+      The status should equal 1
     End
   End
 End
