@@ -329,10 +329,8 @@ main() {
   fi
 }
 
-main
-
-# # execute main only if the script is run directly, not sourced
-# if [ "${BASH_SOURCE[0]}" = "$0" ]; then
-#   main "$@"
-#   exit $?
-# fi
+# execute main only if the script is run directly, not sourced
+if [[ "${BASH_SOURCE[0]}" == "$0" || "${BASH_EXECUTION_STRING}" == "$0" ]]; then
+  main "$@"
+  exit $?
+fi
