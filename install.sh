@@ -23,6 +23,8 @@
 #  |  or self-execute this file:                                                                     |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
+#  |  curl https://dotenvx.sh/install.sh > install.sh                                                |
+#  |  chmod +x install.sh                                                                            |
 #  |  ./install.sh                                                                                   |
 #  |  ```                                                                                            |
 #  |                                                                                                 |
