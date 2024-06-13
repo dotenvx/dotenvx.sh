@@ -19,6 +19,7 @@
 #  |  ```sh                                                                                          |
 #  |  curl https://dotenvx.sh/install.sh | sh                                                        |
 #  |  ```                                                                                            |
+#  |                                                                                                 |
 #  |  or self-execute this file:                                                                     |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
@@ -38,7 +39,7 @@
 #  |  Hello World # with dotenvx                                                                     |
 #  |  ```                                                                                            |
 #  |                                                                                                 |
-#  |  See [`dotenvx`](https://github.com/dotenvx/dotenvx) for extended usage guides.                 |
+#  |  see [`dotenvx`](https://github.com/dotenvx/dotenvx) for extended usage guides.                 |
 #  |                                                                                                 |
 #  |_________________________________________________________________________________________________|
 
