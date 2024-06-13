@@ -1,10 +1,51 @@
 #!/bin/sh
+#  ___________________________________________________________________________________________________
+#  |      _                                                                                          |
+#  |     | |     | |                                                                                 |
+#  |   __| | ___ | |_ ___ _ ____   ____  __                                                          |
+#  |  / _` |/ _ \| __/ _ \ '_ \ \ / /\ \/ /                                                          |
+#  | | (_| | (_) | ||  __/ | | \ V /  >  <                                                           |
+#  |  \__,_|\___/ \__\___|_| |_|\_/  /_/\_\                                                          |
+#  |                                                                                                 |
+#  |                                                                                                 |
+#  |  *a better dotenv*–from the creator of [`dotenv`](https://github.com/motdotla/dotenv).          |
+#  |                                                                                                 |
+#  |  * run anywhere (cross-platform)                                                                |
+#  |  * multi-environment                                                                            |
+#  |  * encrypted envs                                                                               |
+#  |                                                                                                 |
+#  |  ## Install                                                                                     |
+#  |                                                                                                 |
+#  |  ```sh                                                                                          |
+#  |  curl https://dotenvx.sh/install.sh | sh                                                        |
+#  |  ```                                                                                            |
+#  |  or self-execute this file:                                                                     |
+#  |                                                                                                 |
+#  |  ```sh                                                                                          |
+#  |  ./install.sh                                                                                   |
+#  |  ```                                                                                            |
+#  |                                                                                                 |
+#  |  ## Usage                                                                                       |
+#  |                                                                                                 |
+#  |  ```sh                                                                                          |
+#  |  $ echo "HELLO=World" > .env                                                                    |
+#  |  $ echo "console.log('Hello ' + process.env.HELLO)" > index.js                                  |
+#  |                                                                                                 |
+#  |  $ node index.js                                                                                |
+#  |  Hello undefined # without dotenvx                                                              |
+#  |                                                                                                 |
+#  |  $ dotenvx run -- node index.js                                                                 |
+#  |  Hello World # with dotenvx                                                                     |
+#  |  ```                                                                                            |
+#  |                                                                                                 |
+#  |  See [`dotenvx`](https://github.com/dotenvx/dotenvx) for extended usage guides.                 |
+#  |                                                                                                 |
+#  |_________________________________________________________________________________________________|
 
 set -e
-
-# default values
 VERSION="0.44.1"
 DIRECTORY="/usr/local/bin"
+RELEASES_URL="https://github.com/dotenvx/dotenvx/releases"
 
 usage() {
   echo "Usage: $0 [options] [command]"
@@ -81,7 +122,7 @@ is_os_supported() {
   darwin) os="darwin" ;;
   *)
     echo "[INSTALLATION_FAILED] your operating system ${os} is currently unsupported"
-    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx.sh/issues]"
+    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx/issues]"
 
     return 1
     ;;
@@ -100,7 +141,7 @@ is_arch_supported() {
   aarch64) arch="aarch64" ;;
   *)
     echo "[INSTALLATION_FAILED] your architecture ${arch} is currently unsupported - must be x86_64, amd64, arm64, or aarch64"
-    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx.sh/issues]"
+    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx/issues]"
 
     return 1
     ;;
@@ -122,7 +163,7 @@ filename() {
 }
 
 download_url() {
-  echo "https://github.com/dotenvx/dotenvx/releases/download/v$VERSION/$(filename)"
+  echo "$RELEASES_URL/download/v$VERSION/$(filename)"
 
   return 0
 }
