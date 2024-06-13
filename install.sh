@@ -53,7 +53,7 @@ is_curl_installed() {
     echo "[INSTALLATION_FAILED] curl is required and appears to not be installed"
     echo "? install curl and try again"
 
-    exit 1
+    return 1
   fi
 
   return 0
@@ -180,7 +180,7 @@ is_installed() {
     return 1
   fi
 
-  echo "[dotenvx@$flagged_version] already installed ($(directory)/dotenvx)"
+  echo "[dotenvx@$current_version] already installed ($(directory)/dotenvx)"
 
   # return true since version already installed
   return 0
@@ -223,13 +223,13 @@ main() {
       ;;
     help | --help)
       usage
-      exit 0
+      return 0
       ;;
     *)
       # Unknown option
       echo "Unknown option: $arg"
       usage
-      exit 1
+      return 1
       ;;
     esac
   done
@@ -244,14 +244,16 @@ main() {
     # Check if the specified version is already installed
     if is_installed "$VERSION"; then
       echo "[dotenvx@$VERSION] already installed ($(directory)/dotenvx)"
-      exit 0
+
+      return 0
     else
       install_dotenvx "$VERSION"
     fi
   else
     if is_installed; then
       echo "[dotenvx@$VERSION] already installed ($(directory)/dotenvx)"
-      exit 0
+
+      return 0
     else
       install_dotenvx
     fi
@@ -261,4 +263,5 @@ main() {
 # execute main only if the script is run directly, not sourced
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
   main "$@"
+  exit $?
 fi
