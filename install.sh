@@ -35,6 +35,22 @@ INSTALL_SCRIPT_URL="https://dotenvx.sh/install.sh"
 #  |  ./install.sh                                                                                   |
 #  |  ```                                                                                            |
 #  |                                                                                                 |
+#  |  more install examples:                                                                         |
+#  |                                                                                                 |
+#  |  ```sh                                                                                          |
+#  |  # curl examples                                                                                |
+#  |  curl -fsS https://dotenvx.sh/install.sh | sudo sh                                              |
+#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --directory=.                               |
+#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --version=0.44.0                            |
+#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --directory=/custom/path --version=0.44.0   |
+#  |                                                                                                 |
+#  |  # self-executing examples                                                                      |
+#  |  ./install.sh --directory=.                                                                     |
+#  |  ./install.sh --version=0.44.0                                                                  |
+#  |  ./install.sh --directory=/custom/path --version=0.44.0                                         |
+#  |  ./install.sh --help                                                                            |
+#  |  ```                                                                                            |
+#  |                                                                                                 |
 #  |  ## Usage                                                                                       |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
