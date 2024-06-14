@@ -1,1 +1,1 @@
-web: node index.js
+web: dotenvx run -- node index.js
