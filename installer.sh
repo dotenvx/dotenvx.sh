@@ -2,6 +2,71 @@
 
 set -e
 
+#  ./install.sh
+#  ___________________________________________________________________________________________________
+#  |      _                                                                                          |
+#  |     | |     | |                                                                                 |
+#  |   __| | ___ | |_ ___ _ ____   ____  __                                                          |
+#  |  / _` |/ _ \| __/ _ \ '_ \ \ / /\ \/ /                                                          |
+#  | | (_| | (_) | ||  __/ | | \ V /  >  <                                                           |
+#  |  \__,_|\___/ \__\___|_| |_|\_/  /_/\_\                                                          |
+#  |                                                                                                 |
+#  |                                                                                                 |
+#  |  *a better dotenv*–from the creator of [`dotenv`](https://github.com/motdotla/dotenv).          |
+#  |                                                                                                 |
+#  |  * run anywhere (cross-platform)                                                                |
+#  |  * multi-environment                                                                            |
+#  |  * encrypted envs                                                                               |
+#  |                                                                                                 |
+#  |  ## Install                                                                                     |
+#  |                                                                                                 |
+#  |  ```sh                                                                                          |
+#  |  curl -fsS https://dotenvx.sh/install.sh | sh                                                   |
+#  |  ```                                                                                            |
+#  |                                                                                                 |
+#  |  or self-execute this file:                                                                     |
+#  |                                                                                                 |
+#  |  ```sh                                                                                          |
+#  |  curl -fsS https://dotenvx.sh/install.sh > install.sh                                           |
+#  |  chmod +x install.sh                                                                            |
+#  |  ./install.sh                                                                                   |
+#  |  ```                                                                                            |
+#  |                                                                                                 |
+#  |  more install examples:                                                                         |
+#  |                                                                                                 |
+#  |  ```sh                                                                                          |
+#  |  # curl examples                                                                                |
+#  |  curl -fsS https://dotenvx.sh/install.sh | sudo sh                                              |
+#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --directory=.                               |
+#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --version=0.44.0                            |
+#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --directory=/custom/path --version=0.44.0   |
+#  |                                                                                                 |
+#  |  # self-executing examples                                                                      |
+#  |  ./install.sh --directory=.                                                                     |
+#  |  ./install.sh --version=0.44.0                                                                  |
+#  |  ./install.sh --directory=/custom/path --version=0.44.0                                         |
+#  |  ./install.sh --help                                                                            |
+#  |  ```                                                                                            |
+#  |                                                                                                 |
+#  |  ## Usage                                                                                       |
+#  |                                                                                                 |
+#  |  ```sh                                                                                          |
+#  |  $ echo "HELLO=World" > .env                                                                    |
+#  |  $ echo "console.log('Hello ' + process.env.HELLO)" > index.js                                  |
+#  |                                                                                                 |
+#  |  $ node index.js                                                                                |
+#  |  Hello undefined # without dotenvx                                                              |
+#  |                                                                                                 |
+#  |  $ dotenvx run -- node index.js                                                                 |
+#  |  Hello World # with dotenvx                                                                     |
+#  |  ```                                                                                            |
+#  |                                                                                                 |
+#  |  see [`dotenvx`](https://github.com/dotenvx/dotenvx) for extended usage guides.                 |
+#  |                                                                                                 |
+#  |_________________________________________________________________________________________________|
+
+
+
 if test -n "$VERBOSE" -o -n "$GITHUB_ACTIONS" -a -n "$RUNNER_DEBUG"; then
   set -x
 fi
