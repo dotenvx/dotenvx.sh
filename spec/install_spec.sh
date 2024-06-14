@@ -283,6 +283,26 @@ Commands:
     End
   End
 
+  Describe 'is_windows()'
+    It 'returns false'
+      When call is_windows
+      The status should equal 1
+    End
+
+    Describe 'when on windows os'
+      os() {
+        echo "windows"
+
+        return 0
+      }
+
+      It 'returns true'
+        When call is_windows
+        The status should equal 0
+      End
+    End
+  End
+
   Describe 'is_installed()'
     which_dotenvx() {
       mock_which_dotenvx_empty

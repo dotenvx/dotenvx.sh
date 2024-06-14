@@ -159,9 +159,13 @@ is_test_mode() {
   [ -n "$TEST_MODE" ] && [ $TEST_MODE != 0 ]
 }
 
+is_windows() {
+  [ "$(os)" = "windows" ]
+}
+
 is_installed() {
   local flagged_version="$1"
-  local current_version=$("$(directory)/dotenvx" --version 2>/dev/null || echo "0")
+  local current_version=$("$(directory)/$(binary_name)" --version 2>/dev/null || echo "0")
 
   # if --version flag passed
   if [ -n "$flagged_version" ]; then
@@ -180,7 +184,7 @@ is_installed() {
     return 1
   fi
 
-  echo "[dotenvx@$current_version] already installed ($(directory)/dotenvx)"
+  echo "[dotenvx@$current_version] already installed ($(directory)/$(binary_name))"
 
   # return true since version already installed
   return 0
@@ -243,6 +247,16 @@ progress_bar() {
   return 0
 }
 
+binary_name() {
+  if $(is_windows); then
+    echo "dotenvx.exe"
+  else
+    echo "dotenvx"
+  fi
+
+  return 0
+}
+
 # which_* -------------------------------
 which_curl() {
   local result
@@ -266,7 +280,7 @@ which_dotenvx() {
 warn_of_any_conflict() {
   local dotenvx_path="$(which_dotenvx)"
 
-  if [ "$dotenvx_path" != "" ] && [ "$dotenvx_path" != "$(directory)/dotenvx" ]; then
+  if [ "$dotenvx_path" != "" ] && [ "$dotenvx_path" != "$(directory)/$(binary_name)" ]; then
     echo "[DOTENVX_CONFLICT] conflicting dotenvx found at $dotenvx_path" >&2
     echo "? we recommend updating your path to include $(directory)" >&2
   fi
@@ -322,8 +336,8 @@ install_dotenvx() {
   mkfifo "$pipe"
 
   install_failed_cleanup() {
-    echo "[INSTALLATION_FAILED] failed to download and extract binary from $(download_url)]"
-    echo "? verify the url and try downloading manually [$(download_url)]"
+    echo "[INSTALLATION_FAILED] failed to download from registry [$(download_url)]"
+    echo "? verify the download url and try downloading manually"
     rm -r "$tmpdir"
   }
 
@@ -334,7 +348,7 @@ install_dotenvx() {
   curl_pid=$!
 
   # Start tar in the background to read from the pipe
-  sh -c "tar xz --directory $(directory) --strip-components=1 -f '$pipe' 'package/dotenvx'" &
+  sh -c "tar xz --directory $(directory) --strip-components=1 -f '$pipe' 'package/$(binary_name)'" &
   tar_pid=$!
 
   if ! wait $curl_pid || ! wait $tar_pid; then
@@ -349,7 +363,7 @@ install_dotenvx() {
   warn_of_any_conflict
 
   # let user know
-  echo "[dotenvx@$VERSION] installed successfully ($(directory)/dotenvx)"
+  echo "[dotenvx@$VERSION] installed successfully ($(directory)/$(binary_name))"
 
   return 0
 }
@@ -387,7 +401,7 @@ run() {
   if [ -n "$VERSION" ]; then
     # Check if the specified version is already installed
     if is_installed "$VERSION"; then
-      echo "[dotenvx@$VERSION] already installed ($(directory)/dotenvx)"
+      echo "[dotenvx@$VERSION] already installed ($(directory)/$(binary_name))"
 
       return 0
     else
@@ -395,7 +409,7 @@ run() {
     fi
   else
     if is_installed; then
-      echo "[dotenvx@$VERSION] already installed ($(directory)/dotenvx)"
+      echo "[dotenvx@$VERSION] already installed ($(directory)/$(binary_name))"
 
       return 0
     else
