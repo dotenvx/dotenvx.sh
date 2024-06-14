@@ -52,7 +52,7 @@ INSTALL_SCRIPT_URL="https://dotenvx.sh/install.sh"
 #  |                                                                                                 |
 #  |_________________________________________________________________________________________________|
 
-# usage
+# usage ---------------------------------
 usage() {
   echo "Usage: $0 [options] [command]"
   echo ""
@@ -67,47 +67,12 @@ usage() {
   echo "  help              display help"
 }
 
-directory() {
-  local dir=$DIRECTORY
-
-  case "$dir" in
-  ~*/*)
-    dir="$HOME/${dir#\~/}"
-    ;;
-  ~*)
-    dir="$HOME/${dir#\~}"
-    ;;
-  esac
-
-  echo "${dir}"
-  return 0
-}
-
-sudo_install_command() {
-  if is_piped; then
-    echo "curl -fsS $INSTALL_SCRIPT_URL | sudo $0"
-  else
-    echo "sudo $0"
-  fi
-
-  return 0
-}
-
-customize_directory_command() {
-  if is_piped; then
-    echo "curl -fsS $INSTALL_SCRIPT_URL | $0 -s -- --directory=."
-  else
-    echo "$0 --directory=."
-  fi
-
-  return 0
-}
-
+# machine checks ------------------------
 is_directory_writable() {
   # check installation directory is writable
   if [ ! -w "$(directory)" ]; then
     echo "[INSTALLATION_FAILED] the installation directory [$(directory)] is not writable by the current user"
-    echo "? run as root [$(sudo_install_command "$0")] or choose a writable directory like your current directory [$(customize_directory_command "$0")]"
+    echo "? run as root [$(help_sudo_install_command "$0")] or choose a writable directory like your current directory [$(help_customize_directory_command "$0")]"
 
     return 1
   fi
@@ -120,22 +85,10 @@ is_curl_installed() {
 
   if [ -z "$curl_path" ]; then
     echo "[INSTALLATION_FAILED] curl is required and is not installed"
-    echo "? install curl [$(install_curl_command)] and try again"
+    echo "? install curl [$(help_install_curl_command)] and try again"
 
     return 1
   fi
-
-  return 0
-}
-
-os() {
-  echo "$(uname -s | tr '[:upper:]' '[:lower:]')"
-
-  return 0
-}
-
-arch() {
-  echo "$(uname -m | tr '[:upper:]' '[:lower:]')"
 
   return 0
 }
@@ -176,24 +129,7 @@ is_arch_supported() {
   return 0
 }
 
-os_arch() {
-  echo "$(os)-$(arch)"
-
-  return 0
-}
-
-filename() {
-  echo "dotenvx-$VERSION-$(os_arch).tar.gz"
-
-  return 0
-}
-
-download_url() {
-  echo "$RELEASES_URL/download/v$VERSION/$(filename)"
-
-  return 0
-}
-
+# is_* checks ---------------------------
 is_piped() {
   [ "$0" = "sh" ] || [ "$0" = "bash" ]
 }
@@ -204,61 +140,6 @@ is_ci() {
 
 is_test_mode() {
   [ -n "$TEST_MODE" ] && [ $TEST_MODE != 0 ]
-}
-
-progress_bar() {
-  if $(is_ci); then
-    echo "--no-progress-meter"
-  else
-    echo "--progress-bar"
-  fi
-
-  return 0
-}
-
-install_curl_command() {
-  if command -v apt-get >/dev/null 2>&1; then
-    echo "sudo apt-get update && sudo apt-get install -y curl"
-  elif command -v yum >/dev/null 2>&1; then
-    echo "sudo yum install -y curl"
-  elif command -v brew >/dev/null 2>&1; then
-    echo "brew install curl"
-  elif command -v pkg >/dev/null 2>&1; then
-    echo "sudo pkg install curl"
-  else
-    echo "install curl manually"
-  fi
-
-  return 0
-}
-
-which_curl() {
-  local result
-  result=$(command -v curl 2>/dev/null) # capture the output without displaying it on the screen
-
-  echo "$result"
-
-  return 0
-}
-
-which_dotenvx() {
-  local result
-  result=$(command -v dotenvx 2>/dev/null) # capture the output without displaying it on the screen
-
-  echo "$result"
-
-  return 0
-}
-
-warn_of_any_conflict() {
-  local dotenvx_path="$(which_dotenvx)"
-
-  if [ "$dotenvx_path" != "" ] && [ "$dotenvx_path" != "$(directory)/dotenvx" ]; then
-    echo "[DOTENVX_CONFLICT] conflicting dotenvx found at $dotenvx_path" >&2
-    echo "? we recommend updating your path to include $(directory)" >&2
-  fi
-
-  return 0
 }
 
 is_installed() {
@@ -288,6 +169,132 @@ is_installed() {
   return 0
 }
 
+# helpers -------------------------------
+directory() {
+  local dir=$DIRECTORY
+
+  case "$dir" in
+  ~*/*)
+    dir="$HOME/${dir#\~/}"
+    ;;
+  ~*)
+    dir="$HOME/${dir#\~}"
+    ;;
+  esac
+
+  echo "${dir}"
+  return 0
+}
+
+os() {
+  echo "$(uname -s | tr '[:upper:]' '[:lower:]')"
+
+  return 0
+}
+
+arch() {
+  echo "$(uname -m | tr '[:upper:]' '[:lower:]')"
+
+  return 0
+}
+
+os_arch() {
+  echo "$(os)-$(arch)"
+
+  return 0
+}
+
+filename() {
+  echo "dotenvx-$VERSION-$(os_arch).tar.gz"
+
+  return 0
+}
+
+download_url() {
+  echo "$RELEASES_URL/download/v$VERSION/$(filename)"
+
+  return 0
+}
+
+progress_bar() {
+  if $(is_ci); then
+    echo "--no-progress-meter"
+  else
+    echo "--progress-bar"
+  fi
+
+  return 0
+}
+
+# which_* -------------------------------
+which_curl() {
+  local result
+  result=$(command -v curl 2>/dev/null) # capture the output without displaying it on the screen
+
+  echo "$result"
+
+  return 0
+}
+
+which_dotenvx() {
+  local result
+  result=$(command -v dotenvx 2>/dev/null) # capture the output without displaying it on the screen
+
+  echo "$result"
+
+  return 0
+}
+
+# warnings* -----------------------------
+warn_of_any_conflict() {
+  local dotenvx_path="$(which_dotenvx)"
+
+  if [ "$dotenvx_path" != "" ] && [ "$dotenvx_path" != "$(directory)/dotenvx" ]; then
+    echo "[DOTENVX_CONFLICT] conflicting dotenvx found at $dotenvx_path" >&2
+    echo "? we recommend updating your path to include $(directory)" >&2
+  fi
+
+  return 0
+}
+
+# help text -----------------------------
+help_sudo_install_command() {
+  if is_piped; then
+    echo "curl -fsS $INSTALL_SCRIPT_URL | sudo $0"
+  else
+    echo "sudo $0"
+  fi
+
+  return 0
+}
+
+help_customize_directory_command() {
+  if is_piped; then
+    echo "curl -fsS $INSTALL_SCRIPT_URL | $0 -s -- --directory=."
+  else
+    echo "$0 --directory=."
+  fi
+
+  return 0
+}
+
+help_install_curl_command() {
+  if command -v apt-get >/dev/null 2>&1; then
+    echo "sudo apt-get update && sudo apt-get install -y curl"
+  elif command -v yum >/dev/null 2>&1; then
+    echo "sudo yum install -y curl"
+  elif command -v brew >/dev/null 2>&1; then
+    echo "brew install curl"
+  elif command -v pkg >/dev/null 2>&1; then
+    echo "sudo pkg install curl"
+  else
+    echo "install curl manually"
+  fi
+
+  return 0
+}
+
+# install/run ---------------------------
 install_dotenvx() {
   # 0. override version
   VERSION="${1:-$VERSION}"
@@ -313,7 +320,7 @@ install_dotenvx() {
   return 0
 }
 
-main() {
+run() {
   # parse arguments
   for arg in "$@"; do
     case $arg in
@@ -336,6 +343,7 @@ main() {
     esac
   done
 
+  # machine checks
   is_directory_writable
   is_curl_installed
   is_os_supported
@@ -367,6 +375,6 @@ if ! is_test_mode; then
     echo "piping script"
   fi
 
-  main "$@"
+  run "$@"
   exit $?
 fi

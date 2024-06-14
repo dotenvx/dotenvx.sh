@@ -1,5 +1,5 @@
 export CI=1 # because we are running this on github actions and makes testing output easier
-export TEST_MODE=1 # set to test mode in order to not run main() for test purposes
+export TEST_MODE=1 # set to test mode in order to not run run() for test purposes
 
 Describe 'install.sh'
   Include install.sh
@@ -69,9 +69,9 @@ Describe 'install.sh'
     End
   End
 
-  Describe 'sudo_install_command'
+  Describe 'help_sudo_install_command'
     It 'returns sudo in front of command'
-      When call sudo_install_command
+      When call help_sudo_install_command
       The status should equal 0
       The output should equal "sudo $0"
     End
@@ -82,16 +82,16 @@ Describe 'install.sh'
       }
 
       It "returns with curl example"
-        When call sudo_install_command
+        When call help_sudo_install_command
         The status should equal 0
         The output should equal "curl -fsS https://dotenvx.sh/install.sh | sudo $0"
       End
     End
   End
 
-  Describe 'customize_directory_command'
+  Describe 'help_customize_directory_command'
     It 'returns with --directory flag'
-      When call customize_directory_command
+      When call help_customize_directory_command
       The status should equal 0
       The output should equal "$0 --directory=."
     End
@@ -102,7 +102,7 @@ Describe 'install.sh'
       }
 
       It "returns with curl example"
-        When call customize_directory_command
+        When call help_customize_directory_command
         The status should equal 0
         The output should equal "curl -fsS https://dotenvx.sh/install.sh | $0 -s -- --directory=."
       End
@@ -224,7 +224,7 @@ Commands:
         When call is_curl_installed
         The status should equal 1
         The output should equal "[INSTALLATION_FAILED] curl is required and is not installed
-? install curl [$(install_curl_command)] and try again"
+? install curl [$(help_install_curl_command)] and try again"
       End
     End
   End
@@ -378,13 +378,13 @@ Commands:
     End
   End
 
-  Describe 'main()'
+  Describe 'run()'
     which_dotenvx() {
       mock_which_dotenvx_empty
     }
 
     It 'installs dotenvx'
-      When call main
+      When call run
       The status should equal 0
       The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
     End
@@ -395,7 +395,7 @@ Commands:
       }
 
       It 'installs it but warns'
-        When call main
+        When call run
         The status should equal 0
         The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
         The stderr should equal "[DOTENVX_CONFLICT] conflicting dotenvx found at /different/path
@@ -407,7 +407,7 @@ Commands:
       Before 'preinstall_dotenvx'
 
       It 'says already installed'
-        When call main
+        When call run
         The status should equal 0
         The output should equal "[dotenvx@0.44.1] already installed (./spec/tmp/dotenvx)"
       End
