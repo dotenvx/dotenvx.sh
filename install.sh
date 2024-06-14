@@ -1,5 +1,5 @@
 #!/bin/sh
-#
+
 set -e
 VERSION="0.44.1"
 DIRECTORY="/usr/local/bin"
