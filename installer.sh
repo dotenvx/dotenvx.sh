@@ -21,13 +21,13 @@ set -e
 #  |  ## Install                                                                                     |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
-#  |  curl -fsS https://dotenvx.sh/install.sh | sh                                                   |
+#  |  curl -sfS https://dotenvx.sh/install.sh | sh                                                   |
 #  |  ```                                                                                            |
 #  |                                                                                                 |
 #  |  or self-execute this file:                                                                     |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
-#  |  curl -fsS https://dotenvx.sh/install.sh > install.sh                                           |
+#  |  curl -sfS https://dotenvx.sh/install.sh > install.sh                                           |
 #  |  chmod +x install.sh                                                                            |
 #  |  ./install.sh                                                                                   |
 #  |  ```                                                                                            |
@@ -36,10 +36,10 @@ set -e
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
 #  |  # curl examples                                                                                |
-#  |  curl -fsS https://dotenvx.sh/install.sh | sudo sh                                              |
-#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --directory=.                               |
-#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --version=0.44.0                            |
-#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --directory=/custom/path --version=0.44.0   |
+#  |  curl -sfS https://dotenvx.sh/install.sh | sudo sh                                              |
+#  |  curl -sfS https://dotenvx.sh/install.sh | sh -s -- --directory=.                               |
+#  |  curl -sfS https://dotenvx.sh/install.sh | sh -s -- --version=0.44.0                            |
+#  |  curl -sfS https://dotenvx.sh/install.sh | sh -s -- --directory=/custom/path --version=0.44.0   |
 #  |                                                                                                 |
 #  |  # self-executing examples                                                                      |
 #  |  ./install.sh --directory=.                                                                     |

@@ -1,6 +1,6 @@
-![curl -fsS https://dotenvx.sh/ | sh](https://dotenvx.com/binary-banner.png)
+![curl -sfS https://dotenvx.sh/ | sh](https://dotenvx.com/binary-banner.png)
 ```sh
-curl -fsS https://dotenvx.sh/install.sh | sh
+curl -sfS https://dotenvx.sh/install.sh | sh
 ```
 > [`dotenvx`](https://github.com/dotenvx/dotenvx#readme) binary installer
 >

@@ -25,13 +25,13 @@ INSTALL_SCRIPT_URL="https://dotenvx.sh/install.sh"
 #  |  ## Install                                                                                     |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
-#  |  curl -fsS https://dotenvx.sh/install.sh | sh                                                   |
+#  |  curl -sfS https://dotenvx.sh/install.sh | sh                                                   |
 #  |  ```                                                                                            |
 #  |                                                                                                 |
 #  |  or self-execute this file:                                                                     |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
-#  |  curl -fsS https://dotenvx.sh/install.sh > install.sh                                           |
+#  |  curl -sfS https://dotenvx.sh/install.sh > install.sh                                           |
 #  |  chmod +x install.sh                                                                            |
 #  |  ./install.sh                                                                                   |
 #  |  ```                                                                                            |
@@ -40,10 +40,10 @@ INSTALL_SCRIPT_URL="https://dotenvx.sh/install.sh"
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
 #  |  # curl examples                                                                                |
-#  |  curl -fsS https://dotenvx.sh/install.sh | sudo sh                                              |
-#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --directory=.                               |
-#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --version=0.44.0                            |
-#  |  curl -fsS https://dotenvx.sh/install.sh | sh -s -- --directory=/custom/path --version=0.44.0   |
+#  |  curl -sfS https://dotenvx.sh/install.sh | sudo sh                                              |
+#  |  curl -sfS https://dotenvx.sh/install.sh | sh -s -- --directory=.                               |
+#  |  curl -sfS https://dotenvx.sh/install.sh | sh -s -- --version=0.44.0                            |
+#  |  curl -sfS https://dotenvx.sh/install.sh | sh -s -- --directory=/custom/path --version=0.44.0   |
 #  |                                                                                                 |
 #  |  # self-executing examples                                                                      |
 #  |  ./install.sh --directory=.                                                                     |
@@ -291,7 +291,7 @@ warn_of_any_conflict() {
 # help text -----------------------------
 help_sudo_install_command() {
   if is_piped; then
-    echo "curl -fsS $INSTALL_SCRIPT_URL | sudo $0"
+    echo "curl -sfS $INSTALL_SCRIPT_URL | sudo $0"
   else
     echo "sudo $0"
   fi
@@ -301,7 +301,7 @@ help_sudo_install_command() {
 
 help_customize_directory_command() {
   if is_piped; then
-    echo "curl -fsS $INSTALL_SCRIPT_URL | $0 -s -- --directory=."
+    echo "curl -sfS $INSTALL_SCRIPT_URL | $0 -s -- --directory=."
   else
     echo "$0 --directory=."
   fi

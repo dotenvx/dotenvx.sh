@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 16.x
       - name: install shellspec
-        run: curl -fsSL https://git.io/shellspec | sh -s 0.28.1 --yes
+        run: curl -sfSL https://git.io/shellspec | sh -s 0.28.1 --yes
       - run: which shellspec
       - run: npm install
       - run: npm run standard

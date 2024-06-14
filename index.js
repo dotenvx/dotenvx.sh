@@ -119,8 +119,9 @@ app.get('/installer.sh', (req, res) => {
 })
 
 app.get('/install.sh', (req, res) => {
-  // /install.sh?version=X.X.X
+  // /install.sh?version=X.X.X&directory=.
   const version = req.query.version
+  const directory = req.query.directory
 
   // install.sh
   const scriptPath = path.join(__dirname, 'install.sh')
@@ -131,8 +132,14 @@ app.get('/install.sh', (req, res) => {
       return
     }
 
+    // curl -sfS https://dotenvx.sh/install.sh?version=1.0.0
     if (version) {
       data = data.replace(/VERSION="[^"]*"/, `VERSION="${version}"`)
+    }
+
+    // curl -sfS https://dotenvx.sh/install.sh?directory=.
+    if (directory) {
+      data = data.replace(/DIRECTORY="[^"]*"/, `DIRECTORY="${directory}"`)
     }
 
     res.type('text/plain')
