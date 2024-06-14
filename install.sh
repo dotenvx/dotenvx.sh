@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION="0.44.1"
+VERSION="0.44.2"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/install.sh"
@@ -318,15 +318,29 @@ install_dotenvx() {
 
   # 1. setup tmpdir
   local tmpdir=$(command mktemp -d)
+  local pipe="$tmpdir/pipe"
+  mkfifo "$pipe"
+
+  install_failed_cleanup() {
+    echo "[INSTALLATION_FAILED] failed to download and extract binary from $(download_url)]"
+    echo "? verify the url and try downloading manually [$(download_url)]"
+    rm -r "$tmpdir"
+  }
 
   # TODO: handle dotenvx.exe when on a windows machine? binary is not package/dotenvx, it's package/dotenvx.exe
-  pipe="$tmpdir/pipe"
-  mkfifo "$pipe"
+
+  # Start curl in the background and redirect output to the pipe
   curl $(progress_bar) --fail -L --proto '=https' "$(download_url)" > "$pipe" &
-  sh -c "
-    tar xz --directory $(directory) --strip-components=1 -f '$pipe' 'package/dotenvx'
-  " &
-  wait
+  curl_pid=$!
+
+  # Start tar in the background to read from the pipe
+  sh -c "tar xz --directory $(directory) --strip-components=1 -f '$pipe' 'package/dotenvx'" &
+  tar_pid=$!
+
+  if ! wait $curl_pid || ! wait $tar_pid; then
+    install_failed_cleanup
+    return 1
+  fi
 
   # 3. clean up
   rm -r "$tmpdir"
