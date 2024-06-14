@@ -119,6 +119,10 @@ app.get('/installer.sh', (req, res) => {
 })
 
 app.get('/install.sh', (req, res) => {
+  // /install.sh?version=X.X.X
+  const version = req.query.version
+
+  // install.sh
   const scriptPath = path.join(__dirname, 'install.sh')
 
   fs.readFile(scriptPath, 'utf8', (err, data) => {
@@ -126,6 +130,11 @@ app.get('/install.sh', (req, res) => {
       res.status(500).send('Error reading the file')
       return
     }
+
+    if (version) {
+      data = data.replace(/VERSION="[^"]*"/, `VERSION="${version}"`)
+    }
+
     res.type('text/plain')
     res.send(data)
   })
