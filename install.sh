@@ -318,6 +318,7 @@ install_dotenvx() {
   # 1. setup tmpdir
   local tmpdir=$(command mktemp -d)
 
+  # todo: handle dotenvx.exe when on a windows machine? binary is not package/dotenvx, it's package/dotenvx.exe
   # curl -O https://registry.npmjs.org/@dotenvx/dotenvx-darwin-arm64/-/dotenvx-darwin-arm64-0.1.0.tgz
   pipe="$tmpdir/pipe"
   mkfifo "$pipe"
