@@ -318,14 +318,24 @@ install_dotenvx() {
   # 1. setup tmpdir
   local tmpdir=$(command mktemp -d)
 
-  # 2. download and unzip - inside pipe to support stricter installs like github actions
+  # curl -O https://registry.npmjs.org/@dotenvx/dotenvx-darwin-arm64/-/dotenvx-darwin-arm64-0.1.0.tgz
   pipe="$tmpdir/pipe"
   mkfifo "$pipe"
-  curl $(progress_bar) --fail -L --proto '=https' "$(download_url)" > "$pipe" &
+  TARBALL_URL="https://registry.npmjs.org/@dotenvx/dotenvx-darwin-arm64/-/dotenvx-darwin-arm64-0.1.0.tgz"
+  curl $(progress_bar) --fail -L --proto '=https' "$TARBALL_URL" > "$pipe" &
   sh -c "
-    tar xz --directory $(directory) < '$pipe'
+    tar xz --directory $(directory) --strip-components=1 -f '$pipe' 'package/dotenvx'
   " &
   wait
+
+  # # 2. download and unzip - inside pipe to support stricter installs like github actions
+  # pipe="$tmpdir/pipe"
+  # mkfifo "$pipe"
+  # curl $(progress_bar) --fail -L --proto '=https' "$(download_url)" > "$pipe" &
+  # sh -c "
+  #   tar xz --directory $(directory) < '$pipe'
+  # " &
+  # wait
 
   # 3. clean up
   rm -r "$tmpdir"
