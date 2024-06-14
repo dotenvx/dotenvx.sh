@@ -394,4 +394,4 @@ if ! is_test_mode; then
   exit $?
 fi
 
-# thanks for using dotenvx! - mot
+# "thanks for using dotenvx!" - mot
