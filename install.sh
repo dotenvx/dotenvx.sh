@@ -307,7 +307,7 @@ install_dotenvx() {
   mkfifo "$pipe"
   # curl $(progress_bar) --fail -L --proto '=https' -o "$tmpdir/$(filename)" "$(download_url)"
   curl $(progress_bar) --fail -L --proto '=https' "$(download_url)" > "$pipe" &
-  sh -c "tar xz --directory $(directory) < '$pipe'" &
+  sh -c "tar xz --no-overwrite-dir --no-same-permissions --no-same-owner --directory $(directory) < '$pipe'" &
   wait
 
   # 3. decompress to install directory
