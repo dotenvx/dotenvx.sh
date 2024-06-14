@@ -62,6 +62,53 @@ Describe 'install.sh'
     End
   End
 
+  Describe 'is_piped()'
+    It 'returns false'
+      When call is_piped
+      The status should equal 1
+    End
+  End
+
+  Describe 'sudo_install_command'
+    It 'returns sudo in front of command'
+      When call sudo_install_command
+      The status should equal 0
+      The output should equal "sudo $0"
+    End
+
+    Describe 'when is_piped is true'
+      is_piped() {
+        return 0
+      }
+
+      It "returns with curl example"
+        When call sudo_install_command
+        The status should equal 0
+        The output should equal "curl -fsS https://dotenvx.sh/install.sh | sudo $0"
+      End
+    End
+  End
+
+  Describe 'customize_directory_command'
+    It 'returns with --directory flag'
+      When call customize_directory_command
+      The status should equal 0
+      The output should equal "$0 --directory=."
+    End
+
+    Describe 'when is_piped is true'
+      is_piped() {
+        return 0
+      }
+
+      It "returns with curl example"
+        When call customize_directory_command
+        The status should equal 0
+        The output should equal "curl -fsS https://dotenvx.sh/install.sh | $0 -s -- --directory=."
+      End
+    End
+  End
+
   Describe 'is_ci()'
     It 'returns true'
       When call is_ci

@@ -1,4 +1,11 @@
 #!/bin/sh
+#
+set -e
+VERSION="0.44.1"
+DIRECTORY="/usr/local/bin"
+RELEASES_URL="https://github.com/dotenvx/dotenvx/releases"
+INSTALL_SCRIPT_URL="https://dotenvx.sh/install.sh"
+
 #  ___________________________________________________________________________________________________
 #  |      _                                                                                          |
 #  |     | |     | |                                                                                 |
@@ -45,11 +52,6 @@
 #  |                                                                                                 |
 #  |_________________________________________________________________________________________________|
 
-set -e
-VERSION="0.44.1"
-DIRECTORY="/usr/local/bin"
-RELEASES_URL="https://github.com/dotenvx/dotenvx/releases"
-
 # usage
 usage() {
   echo "Usage: $0 [options] [command]"
@@ -81,11 +83,31 @@ directory() {
   return 0
 }
 
+sudo_install_command() {
+  if is_piped; then
+    echo "curl -fsS $INSTALL_SCRIPT_URL | sudo $0"
+  else
+    echo "sudo $0"
+  fi
+
+  return 0
+}
+
+customize_directory_command() {
+  if is_piped; then
+    echo "curl -fsS $INSTALL_SCRIPT_URL | $0 -s -- --directory=."
+  else
+    echo "$0 --directory=."
+  fi
+
+  return 0
+}
+
 is_directory_writable() {
   # check installation directory is writable
   if [ ! -w "$(directory)" ]; then
     echo "[INSTALLATION_FAILED] the installation directory [$(directory)] is not writable by the current user"
-    echo "? run as root [sudo $0] or choose a writable directory like your current directory [$0 --directory=.]"
+    echo "? run as root [$(sudo_install_command "$0")] or choose a writable directory like your current directory [$(customize_directory_command "$0")]"
 
     return 1
   fi
@@ -170,6 +192,10 @@ download_url() {
   echo "$RELEASES_URL/download/v$VERSION/$(filename)"
 
   return 0
+}
+
+is_piped() {
+  [ "$0" = "sh" ] || [ "$0" = "bash" ]
 }
 
 is_ci() {
@@ -337,6 +363,10 @@ main() {
 }
 
 if ! is_test_mode; then
+  if is_piped; then
+    echo "piping script"
+  fi
+
   main "$@"
   exit $?
 fi
