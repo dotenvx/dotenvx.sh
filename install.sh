@@ -303,15 +303,16 @@ install_dotenvx() {
   local tmpdir=$(command mktemp -d)
 
   # 2. download
-  pipe="$tmpdir/pipe"
-  mkfifo "$pipe"
-  # curl $(progress_bar) --fail -L --proto '=https' -o "$tmpdir/$(filename)" "$(download_url)"
-  curl $(progress_bar) --fail -L --proto '=https' "$(download_url)" > "$pipe" &
-  sh -c "tar xz --no-overwrite-dir --no-same-permissions --no-same-owner --directory $(directory) < '$pipe'" &
-  wait
+  # pipe="$tmpdir/pipe"
+  # mkfifo "$pipe"
+  curl $(progress_bar) --fail -L --proto '=https' -o "$tmpdir/$(filename)" "$(download_url)"
+
+  # curl $(progress_bar) --fail -L --proto '=https' "$(download_url)" > "$pipe" &
+  # sh -c "tar xz --no-overwrite-dir --no-same-permissions --no-same-owner --directory $(directory) < '$pipe'" &
+  # wait
 
   # 3. decompress to install directory
-  # tar xz --directory $(directory) -f "$tmpdir/$(filename)"
+  sh -c "tar xz --directory $(directory) -f "$tmpdir/$(filename)""
 
   # 4. clean up
   rm -r "$tmpdir"
