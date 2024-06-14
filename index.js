@@ -19,14 +19,8 @@ fs.readFile(installerScriptPath, 'utf8', (err, data) => {
 })
 
 app.get('/', (req, res) => {
-  // Check User-Agent to determine the response
-  const userAgent = req.headers['user-agent'] || ''
-  if (userAgent.includes('curl') || userAgent.includes('wget')) {
-    res.type('text/plain')
-    res.send(installerScript)
-  } else {
-    res.redirect('https://dotenvx.com')
-  }
+  res.type('text/plain')
+  res.send(installerScript)
 })
 
 app.get('/:os/:arch', async (req, res) => {
