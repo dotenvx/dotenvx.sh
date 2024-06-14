@@ -3,7 +3,7 @@
 set -e
 VERSION="0.44.1"
 DIRECTORY="/usr/local/bin"
-RELEASES_URL="https://github.com/dotenvx/dotenvx/releases"
+REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/install.sh"
 
 #  ___________________________________________________________________________________________________
@@ -227,7 +227,7 @@ filename() {
 }
 
 download_url() {
-  echo "$RELEASES_URL/download/v$VERSION/$(filename)"
+  echo "$REGISTRY_URL/@dotenvx/dotenvx-$(os_arch)/-/dotenvx-$(os_arch)-$VERSION.tgz"
 
   return 0
 }
@@ -318,25 +318,14 @@ install_dotenvx() {
   # 1. setup tmpdir
   local tmpdir=$(command mktemp -d)
 
-  # todo: handle dotenvx.exe when on a windows machine? binary is not package/dotenvx, it's package/dotenvx.exe
-  # curl -O https://registry.npmjs.org/@dotenvx/dotenvx-darwin-arm64/-/dotenvx-darwin-arm64-0.1.0.tgz
+  # TODO: handle dotenvx.exe when on a windows machine? binary is not package/dotenvx, it's package/dotenvx.exe
   pipe="$tmpdir/pipe"
   mkfifo "$pipe"
-  TARBALL_URL="https://registry.npmjs.org/@dotenvx/dotenvx-darwin-arm64/-/dotenvx-darwin-arm64-0.1.0.tgz"
-  curl $(progress_bar) --fail -L --proto '=https' "$TARBALL_URL" > "$pipe" &
+  curl $(progress_bar) --fail -L --proto '=https' "$(download_url)" > "$pipe" &
   sh -c "
     tar xz --directory $(directory) --strip-components=1 -f '$pipe' 'package/dotenvx'
   " &
   wait
-
-  # # 2. download and unzip - inside pipe to support stricter installs like github actions
-  # pipe="$tmpdir/pipe"
-  # mkfifo "$pipe"
-  # curl $(progress_bar) --fail -L --proto '=https' "$(download_url)" > "$pipe" &
-  # sh -c "
-  #   tar xz --directory $(directory) < '$pipe'
-  # " &
-  # wait
 
   # 3. clean up
   rm -r "$tmpdir"
