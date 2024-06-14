@@ -371,10 +371,6 @@ run() {
 }
 
 if ! is_test_mode; then
-  if is_piped; then
-    echo "piping script"
-  fi
-
   run "$@"
   exit $?
 fi
