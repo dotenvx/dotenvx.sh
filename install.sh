@@ -24,13 +24,13 @@ INSTALL_SCRIPT_URL="https://dotenvx.sh/install.sh"
 #  |  ## Install                                                                                     |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
-#  |  curl https://dotenvx.sh/install.sh | sh                                                        |
+#  |  curl -fsS https://dotenvx.sh/install.sh | sh
 #  |  ```                                                                                            |
 #  |                                                                                                 |
 #  |  or self-execute this file:                                                                     |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
-#  |  curl https://dotenvx.sh/install.sh > install.sh                                                |
+#  |  curl -fsS https://dotenvx.sh/install.sh > install.sh                                                |
 #  |  chmod +x install.sh                                                                            |
 #  |  ./install.sh                                                                                   |
 #  |  ```                                                                                            |
