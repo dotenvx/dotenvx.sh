@@ -1,7 +1,12 @@
 const express = require('express')
 const axios = require('axios')
 const path = require('path')
+const tar = require('tar')
+const tmp = require('tmp')
 const fs = require('fs')
+const { pipeline } = require('stream')
+const { promisify } = require('util')
+const streamPipeline = promisify(pipeline)
 const app = express()
 
 const PORT = process.env.PORT || 3000
@@ -19,13 +24,13 @@ fs.readFile(installerScriptPath, 'utf8', (err, data) => {
 })
 
 // Read the version file once at the start
-let currentVersion = '0.44.3' // hardcode for added redundancy (in case read fails somehow)
+let VERSION = '0.44.3' // hardcode for added redundancy (in case read fails somehow)
 fs.readFile(path.join(__dirname, 'VERSION'), 'utf8', (err, data) => {
   if (err) {
     console.error('Error reading VERSION file', err)
     process.exit(1) // Exit if the script cannot be read
   }
-  currentVersion = data
+  VERSION = data.trim()
 })
 
 app.get('/', (req, res) => {
@@ -35,7 +40,7 @@ app.get('/', (req, res) => {
 
 app.get('/VERSION', (req, res) => {
   res.type('text/plain')
-  res.send(currentVersion)
+  res.send(VERSION)
 })
 
 app.get('/:os/:arch', async (req, res) => {
@@ -144,6 +149,47 @@ app.get('/install.sh', (req, res) => {
     res.type('text/plain')
     res.send(data)
   })
+})
+
+app.get('/v2/:os/:arch(*)', async (req, res) => {
+  const os = req.params.os.toLowerCase()
+  let arch = req.params.arch.toLowerCase()
+
+  // remove any extension from the arch parameter
+  arch = arch.replace(/\.[^/.]+$/, '')
+
+  const repo = `dotenvx-${os}-${arch}`
+  const filename = `${repo}-${VERSION}.tgz`
+  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
+
+  try {
+    const response = await axios.get(registryUrl, { responseType: 'stream' })
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name
+
+    await streamPipeline(
+      response.data,
+      tar.x({
+        cwd: tmpDir,
+        strip: 1, // Strip the 'package' folder
+        filter: (path) => path.startsWith('package/dotenvx') // Only extract files within the 'package' folder
+      })
+    )
+
+    const tarStream = tar.c(
+      {
+        gzip: true,
+        cwd: tmpDir
+      },
+      ['.']
+    )
+
+    res.setHeader('Content-Type', 'application/gzip')
+    await streamPipeline(tarStream, res)
+
+    fs.rmSync(tmpDir, { recursive: true, force: true })
+  } catch (error) {
+    res.status(500).send('Error occurred while fetching the file: ' + error.message)
+  }
 })
 
 app.listen(PORT, () => {
