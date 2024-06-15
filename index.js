@@ -18,9 +18,24 @@ fs.readFile(installerScriptPath, 'utf8', (err, data) => {
   installerScript = data
 })
 
+// Read the version file once at the start
+let currentVersion = '0.44.3' // hardcode for added redundancy (in case read fails somehow)
+fs.readFile(path.join(__dirname, 'VERSION'), 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading VERSION file', err)
+    process.exit(1) // Exit if the script cannot be read
+  }
+  currentVersion = data
+})
+
 app.get('/', (req, res) => {
   res.type('text/plain')
   res.send(installerScript)
+})
+
+app.get('/VERSION', (req, res) => {
+  res.type('text/plain')
+  res.send(currentVersion)
 })
 
 app.get('/:os/:arch', async (req, res) => {
@@ -86,22 +101,6 @@ app.get('/:os/:arch', async (req, res) => {
     response.data.pipe(res)
   } catch (error) {
     res.status(500).send('Error occurred while fetching the file: ' + error.message)
-  }
-})
-
-app.get('/VERSION', async (req, res) => {
-  const proxyUrl = 'https://dotenvx.com/releases/VERSION'
-
-  try {
-    // Using axios to get the response as text
-    const response = await axios.get(proxyUrl, {
-      responseType: 'text' // Fetch as plain text
-    })
-
-    res.type('text/plain')
-    res.send(response.data)
-  } catch (error) {
-    res.status(500).send('Error occurred while fetching the data: ' + error.message)
   }
 })
 
