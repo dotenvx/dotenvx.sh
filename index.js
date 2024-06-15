@@ -85,7 +85,7 @@ app.get('/install.sh', (req, res) => {
   })
 })
 
-app.get('/:os/:arch(*)', async (req, res) => {
+app.get('/v2/:os/:arch(*)', async (req, res) => {
   const os = req.params.os.toLowerCase()
   let arch = req.params.arch.toLowerCase()
   let version = req.query.version
@@ -136,7 +136,7 @@ app.get('/:os/:arch(*)', async (req, res) => {
   }
 })
 
-app.get('/deprecated/:os/:arch', async (req, res) => {
+app.get('/:os/:arch', async (req, res) => {
   const os = req.params.os.toLowerCase()
   let arch = req.params.arch.toLowerCase()
   let version = req.query.version
