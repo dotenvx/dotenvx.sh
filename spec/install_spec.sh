@@ -5,7 +5,7 @@ Describe 'install.sh'
   Include install.sh
 
   setup() {
-    VERSION="0.44.1"
+    VERSION="0.44.2"
     DIRECTORY="./spec/tmp"
   }
 
@@ -53,7 +53,7 @@ Describe 'install.sh'
   Describe 'default values'
     It 'checks default VERSION'
       When call echo "$VERSION"
-      The output should equal "0.44.1"
+      The output should equal "0.44.2"
     End
 
     It 'checks default DIRECTORY'
@@ -167,7 +167,7 @@ install dotenvx – a better dotenv
 
 Options:
   --directory       directory to install dotenvx to (default: \"/usr/local/bin\")
-  --version         version of dotenvx to install (default: \"0.44.1\")
+  --version         version of dotenvx to install (default: \"0.44.2\")
 
 Commands:
   install           install dotenvx
@@ -187,6 +187,43 @@ Commands:
       It 'expands ~ to home directory'
         When call directory
         The output should equal "/home/testuser/testdir"
+      End
+    End
+  End
+
+  Describe 'is_version_valid()'
+    It 'is true (0)'
+      When call is_version_valid
+      The status should equal 0
+    End
+
+    Describe 'when VERSION blank'
+      mock_version_blank() {
+        VERSION=""
+      }
+
+      Before mock_version_blank
+
+      It 'is false'
+        When call is_version_valid
+        The status should equal 1
+        The output should equal "[INSTALLATION_FAILED] VERSION is blank in install.sh script
+? set VERSION to valid semantic semver version and try again"
+      End
+    End
+
+    Describe 'when VERSION invalid'
+      mock_version_invalid() {
+        VERSION="22"
+      }
+
+      Before mock_version_invalid
+
+      It 'is false'
+        When call is_version_valid
+        The status should equal 1
+        The output should equal "[INSTALLATION_FAILED] VERSION is not a valid semantic version in install.sh script
+? set VERSION to valid semantic semver version and try again"
       End
     End
   End
@@ -271,7 +308,7 @@ Commands:
     It 'returns the combined values'
       When call filename
       The status should equal 0
-      The output should equal "dotenvx-0.44.1-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]').tar.gz"
+      The output should equal "dotenvx-0.44.2-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]').tar.gz"
     End
   End
 
@@ -279,7 +316,7 @@ Commands:
     It 'returns the combined values'
       When call download_url
       The status should equal 0
-      The output should equal "https://registry.npmjs.org/@dotenvx/dotenvx-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]')/-/dotenvx-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]')-0.44.1.tgz"
+      The output should equal "https://registry.npmjs.org/@dotenvx/dotenvx-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]')/-/dotenvx-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | tr '[:upper:]' '[:lower:]')-0.44.2.tgz"
     End
   End
 
@@ -319,7 +356,7 @@ Commands:
       It 'returns true and outputs a message'
         When call is_installed
         The status should equal 0
-        The output should equal "[dotenvx@0.44.1] already installed (./spec/tmp/dotenvx)"
+        The output should equal "[dotenvx@0.44.2] already installed (./spec/tmp/dotenvx)"
       End
     End
   End
@@ -380,7 +417,7 @@ Commands:
     It 'installs it'
       When call install_dotenvx
       The status should equal 0
-      The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
+      The output should equal "[dotenvx@0.44.2] installed successfully (./spec/tmp/dotenvx)"
     End
 
     Describe 'when a different path'
@@ -391,7 +428,7 @@ Commands:
       It 'installs it but warns'
         When call install_dotenvx
         The status should equal 0
-        The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
+        The output should equal "[dotenvx@0.44.2] installed successfully (./spec/tmp/dotenvx)"
         The stderr should equal "[DOTENVX_CONFLICT] conflicting dotenvx found at /different/path
 ? we recommend updating your path to include ./spec/tmp"
       End
@@ -406,7 +443,7 @@ Commands:
     It 'installs dotenvx'
       When call run
       The status should equal 0
-      The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
+      The output should equal "[dotenvx@0.44.2] installed successfully (./spec/tmp/dotenvx)"
     End
 
     Describe 'when a different path'
@@ -417,7 +454,7 @@ Commands:
       It 'installs it but warns'
         When call run
         The status should equal 0
-        The output should equal "[dotenvx@0.44.1] installed successfully (./spec/tmp/dotenvx)"
+        The output should equal "[dotenvx@0.44.2] installed successfully (./spec/tmp/dotenvx)"
         The stderr should equal "[DOTENVX_CONFLICT] conflicting dotenvx found at /different/path
 ? we recommend updating your path to include ./spec/tmp"
       End
@@ -429,7 +466,7 @@ Commands:
       It 'says already installed'
         When call run
         The status should equal 0
-        The output should equal "[dotenvx@0.44.1] already installed (./spec/tmp/dotenvx)"
+        The output should equal "[dotenvx@0.44.2] already installed (./spec/tmp/dotenvx)"
       End
     End
   End

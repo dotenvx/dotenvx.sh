@@ -85,6 +85,25 @@ usage() {
 }
 
 # machine checks ------------------------
+is_version_valid() {
+  if [ -z "$VERSION" ]; then
+    echo "[INSTALLATION_FAILED] VERSION is blank in install.sh script"
+    echo "? set VERSION to valid semantic semver version and try again"
+
+    return 1
+  fi
+
+  local semver_regex="^([0-9]+)\.([0-9]+)\.([0-9]+)$"
+  if [[ "$VERSION" =~ $semver_regex ]]; then
+    return 0
+  else
+    echo "[INSTALLATION_FAILED] VERSION is not a valid semantic version in install.sh script"
+    echo "? set VERSION to valid semantic semver version and try again"
+
+    return 1
+  fi
+}
+
 is_directory_writable() {
   # check installation directory is writable
   if [ ! -w "$(directory)" ]; then
@@ -392,6 +411,7 @@ run() {
   done
 
   # machine checks
+  is_version_valid
   is_directory_writable
   is_curl_installed
   is_os_supported
