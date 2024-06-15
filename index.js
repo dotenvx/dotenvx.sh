@@ -43,7 +43,100 @@ app.get('/VERSION', (req, res) => {
   res.send(VERSION)
 })
 
-app.get('/:os/:arch', async (req, res) => {
+app.get('/installer.sh', (req, res) => {
+  const scriptPath = path.join(__dirname, 'installer.sh')
+
+  fs.readFile(scriptPath, 'utf8', (err, data) => {
+    if (err) {
+      res.status(500).send('Error reading the file')
+      return
+    }
+    res.type('text/plain')
+    res.send(data)
+  })
+})
+
+app.get('/install.sh', (req, res) => {
+  // /install.sh?version=X.X.X&directory=.
+  const version = req.query.version
+  const directory = req.query.directory
+
+  // install.sh
+  const scriptPath = path.join(__dirname, 'install.sh')
+
+  fs.readFile(scriptPath, 'utf8', (err, data) => {
+    if (err) {
+      res.status(500).send('Error reading the file')
+      return
+    }
+
+    // curl -sfS https://dotenvx.sh/install.sh?version=1.0.0
+    if (version) {
+      data = data.replace(/VERSION="[^"]*"/, `VERSION="${version}"`)
+    }
+
+    // curl -sfS https://dotenvx.sh/install.sh?directory=.
+    if (directory) {
+      data = data.replace(/DIRECTORY="[^"]*"/, `DIRECTORY="${directory}"`)
+    }
+
+    res.type('text/plain')
+    res.send(data)
+  })
+})
+
+app.get('/:os/:arch(*)', async (req, res) => {
+  const os = req.params.os.toLowerCase()
+  let arch = req.params.arch.toLowerCase()
+  let version = req.query.version
+
+  // remove any extension from the arch parameter
+  arch = arch.replace(/\.[^/.]+$/, '')
+
+  // check if version is provided
+  if (version) {
+    if (version.startsWith('v')) {
+      version = version.replace(/^v/, '')
+    }
+  } else {
+    version = VERSION
+  }
+
+  const repo = `dotenvx-${os}-${arch}`
+  const filename = `${repo}-${version}.tgz`
+  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
+
+  try {
+    const response = await axios.get(registryUrl, { responseType: 'stream' })
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name
+
+    await streamPipeline(
+      response.data,
+      tar.x({
+        cwd: tmpDir,
+        strip: 1, // Strip the 'package' folder
+        filter: (path) => path.startsWith('package/dotenvx') // Only extract files within the 'package' folder
+      })
+    )
+
+    const tarStream = tar.c(
+      {
+        gzip: true,
+        cwd: tmpDir
+      },
+      ['.']
+    )
+
+    res.setHeader('Content-Type', 'application/gzip')
+    await streamPipeline(tarStream, res)
+
+    fs.rmSync(tmpDir, { recursive: true, force: true })
+  } catch (error) {
+    res.status(500).send('Error occurred while fetching the file: ' + error.message)
+  }
+})
+
+app.get('/deprecated/:os/:arch', async (req, res) => {
   const os = req.params.os.toLowerCase()
   let arch = req.params.arch.toLowerCase()
   let version = req.query.version
@@ -104,99 +197,6 @@ app.get('/:os/:arch', async (req, res) => {
 
     // Piping the response stream to the client
     response.data.pipe(res)
-  } catch (error) {
-    res.status(500).send('Error occurred while fetching the file: ' + error.message)
-  }
-})
-
-app.get('/installer.sh', (req, res) => {
-  const scriptPath = path.join(__dirname, 'installer.sh')
-
-  fs.readFile(scriptPath, 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).send('Error reading the file')
-      return
-    }
-    res.type('text/plain')
-    res.send(data)
-  })
-})
-
-app.get('/install.sh', (req, res) => {
-  // /install.sh?version=X.X.X&directory=.
-  const version = req.query.version
-  const directory = req.query.directory
-
-  // install.sh
-  const scriptPath = path.join(__dirname, 'install.sh')
-
-  fs.readFile(scriptPath, 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).send('Error reading the file')
-      return
-    }
-
-    // curl -sfS https://dotenvx.sh/install.sh?version=1.0.0
-    if (version) {
-      data = data.replace(/VERSION="[^"]*"/, `VERSION="${version}"`)
-    }
-
-    // curl -sfS https://dotenvx.sh/install.sh?directory=.
-    if (directory) {
-      data = data.replace(/DIRECTORY="[^"]*"/, `DIRECTORY="${directory}"`)
-    }
-
-    res.type('text/plain')
-    res.send(data)
-  })
-})
-
-app.get('/v2/:os/:arch(*)', async (req, res) => {
-  const os = req.params.os.toLowerCase()
-  let arch = req.params.arch.toLowerCase()
-  let version = req.query.version
-
-  // remove any extension from the arch parameter
-  arch = arch.replace(/\.[^/.]+$/, '')
-
-  // check if version is provided
-  if (version) {
-    if (version.startsWith('v')) {
-      version = version.replace(/^v/, '')
-    }
-  } else {
-    version = VERSION
-  }
-
-  const repo = `dotenvx-${os}-${arch}`
-  const filename = `${repo}-${version}.tgz`
-  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
-
-  try {
-    const response = await axios.get(registryUrl, { responseType: 'stream' })
-    const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name
-
-    await streamPipeline(
-      response.data,
-      tar.x({
-        cwd: tmpDir,
-        strip: 1, // Strip the 'package' folder
-        filter: (path) => path.startsWith('package/dotenvx') // Only extract files within the 'package' folder
-      })
-    )
-
-    const tarStream = tar.c(
-      {
-        gzip: true,
-        cwd: tmpDir
-      },
-      ['.']
-    )
-
-    res.setHeader('Content-Type', 'application/gzip')
-    await streamPipeline(tarStream, res)
-
-    fs.rmSync(tmpDir, { recursive: true, force: true })
   } catch (error) {
     res.status(500).send('Error occurred while fetching the file: ' + error.message)
   }
