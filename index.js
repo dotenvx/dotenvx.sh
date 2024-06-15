@@ -154,12 +154,22 @@ app.get('/install.sh', (req, res) => {
 app.get('/v2/:os/:arch(*)', async (req, res) => {
   const os = req.params.os.toLowerCase()
   let arch = req.params.arch.toLowerCase()
+  let version = req.query.version
 
   // remove any extension from the arch parameter
   arch = arch.replace(/\.[^/.]+$/, '')
 
+  // check if version is provided
+  if (version) {
+    if (version.startsWith('v')) {
+      version = version.replace(/^v/, '')
+    }
+  } else {
+    version = VERSION
+  }
+
   const repo = `dotenvx-${os}-${arch}`
-  const filename = `${repo}-${VERSION}.tgz`
+  const filename = `${repo}-${version}.tgz`
   const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
 
   try {
