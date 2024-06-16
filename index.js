@@ -148,7 +148,9 @@ app.get('/v2/:os/:arch(*)', async (req, res) => {
     const readStream = fs.createReadStream(tmpTarPath)
     readStream.pipe(res)
   } catch (error) {
-    res.status(500).send('Error occurred while fetching the file: ' + error.message)
+    console.log('error', error.message)
+
+    res.status(500).send('500 error')
   }
 })
 
