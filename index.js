@@ -95,66 +95,7 @@ app.get('/install.sh', (req, res) => {
   })
 })
 
-app.get('/v2/:os/:arch(*)', async (req, res) => {
-  const os = req.params.os.toLowerCase().trim()
-  let arch = req.params.arch.toLowerCase().trim()
-  let version = req.query.version
-  let binaryName = 'dotenvx'
-
-  // remove any extension from the arch parameter
-  arch = arch.replace(/\.[^/.]+$/, '')
-
-  // check if version is provided
-  if (version) {
-    if (version.startsWith('v')) {
-      version = version.replace(/^v/, '')
-    }
-  } else {
-    version = VERSION
-  }
-
-  // modify binaryName if windows
-  if (os === 'windows') {
-    binaryName = 'dotenvx.exe'
-  }
-
-  const repo = `dotenvx-${os}-${arch}`
-  const filename = `${repo}-${version}.tgz`
-  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
-
-  try {
-    const tmpDir = tmp.dirSync().name // create unique tmp directory
-    const tmpDownloadPath = path.join(tmpDir, filename) // path for the downloaded file from npm
-    const tmpTarPath = path.join(tmpDir, 'output.tgz') // path for the new tarball
-
-    // download, un-tar, grab binary, and re-tar
-    const command = `
-      curl -sS -L ${registryUrl} -o ${tmpDownloadPath} &&
-      tar -xzf ${tmpDownloadPath} -C ${tmpDir} --strip-components=1 package &&
-      chmod 755 ${path.join(tmpDir, binaryName)} &&
-      tar -czf ${tmpTarPath} -C ${tmpDir} ${binaryName}
-    `
-    execSync(command)
-
-    // stat
-    const stat = fs.statSync(tmpTarPath)
-
-    // set headers
-    res.setHeader('Content-Type', 'application/gzip')
-    res.setHeader('Content-Length', stat.size)
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
-
-    // stream tarball to the response
-    const readStream = fs.createReadStream(tmpTarPath)
-    readStream.pipe(res)
-  } catch (error) {
-    console.log('error', error.message)
-
-    res.status(500).send('500 error')
-  }
-})
-
-app.get('/:os/:arch', async (req, res) => {
+app.get('/deprecated/:os/:arch', async (req, res) => {
   const os = req.params.os.toLowerCase()
   let arch = req.params.arch.toLowerCase()
   let version = req.query.version
@@ -217,6 +158,65 @@ app.get('/:os/:arch', async (req, res) => {
     response.data.pipe(res)
   } catch (error) {
     res.status(500).send('Error occurred while fetching the file: ' + error.message)
+  }
+})
+
+app.get('/v2/:os/:arch(*)', async (req, res) => {
+  const os = req.params.os.toLowerCase().trim()
+  let arch = req.params.arch.toLowerCase().trim()
+  let version = req.query.version
+  let binaryName = 'dotenvx'
+
+  // remove any extension from the arch parameter
+  arch = arch.replace(/\.[^/.]+$/, '')
+
+  // check if version is provided
+  if (version) {
+    if (version.startsWith('v')) {
+      version = version.replace(/^v/, '')
+    }
+  } else {
+    version = VERSION
+  }
+
+  // modify binaryName if windows
+  if (os === 'windows') {
+    binaryName = 'dotenvx.exe'
+  }
+
+  const repo = `dotenvx-${os}-${arch}`
+  const filename = `${repo}-${version}.tgz`
+  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
+
+  try {
+    const tmpDir = tmp.dirSync().name // create unique tmp directory
+    const tmpDownloadPath = path.join(tmpDir, filename) // path for the downloaded file from npm
+    const tmpTarPath = path.join(tmpDir, 'output.tgz') // path for the new tarball
+
+    // download, un-tar, grab binary, and re-tar
+    const command = `
+      curl -sS -L ${registryUrl} -o ${tmpDownloadPath} &&
+      tar -xzf ${tmpDownloadPath} -C ${tmpDir} --strip-components=1 package &&
+      chmod 755 ${path.join(tmpDir, binaryName)} &&
+      tar -czf ${tmpTarPath} -C ${tmpDir} ${binaryName}
+    `
+    execSync(command)
+
+    // stat
+    const stat = fs.statSync(tmpTarPath)
+
+    // set headers
+    res.setHeader('Content-Type', 'application/gzip')
+    res.setHeader('Content-Length', stat.size)
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+
+    // stream tarball to the response
+    const readStream = fs.createReadStream(tmpTarPath)
+    readStream.pipe(res)
+  } catch (error) {
+    console.log('error', error.message)
+
+    res.status(500).send('500 error')
   }
 })
 
