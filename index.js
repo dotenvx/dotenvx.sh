@@ -161,7 +161,7 @@ app.get('/deprecated/:os/:arch', async (req, res) => {
   }
 })
 
-app.get('/v2/:os/:arch(*)', async (req, res) => {
+app.get('/:os/:arch(*)', async (req, res) => {
   const os = req.params.os.toLowerCase().trim()
   let arch = req.params.arch.toLowerCase().trim()
   let version = req.query.version
