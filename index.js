@@ -119,7 +119,7 @@ app.get('/v2/:os/:arch(*)', async (req, res) => {
 
   try {
     const response = await axios.get(registryUrl, { responseType: 'stream' })
-    const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name
+    const tmpDir = tmp.dirSync().name
     const tmpTarPath = path.join(tmpDir, filename)
 
     // extract the downloaded tarball to the temporary directory
