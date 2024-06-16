@@ -96,66 +96,66 @@ app.get('/install.sh', (req, res) => {
   })
 })
 
-app.get('/v2/:os/:arch(*)', async (req, res) => {
-  const os = req.params.os.toLowerCase()
-  let arch = req.params.arch.toLowerCase()
-  let version = req.query.version
-
-  // remove any extension from the arch parameter
-  arch = arch.replace(/\.[^/.]+$/, '')
-
-  // check if version is provided
-  if (version) {
-    if (version.startsWith('v')) {
-      version = version.replace(/^v/, '')
-    }
-  } else {
-    version = VERSION
-  }
-
-  const repo = `dotenvx-${os}-${arch}`
-  const filename = `${repo}-${version}.tgz`
-  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
-
-  try {
-    const response = await axios.get(registryUrl, { responseType: 'stream' })
-    const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name
-    const tmpTarPath = path.join(tmpDir, filename)
-
-    // extract the downloaded tarball to the temporary directory
-    response.data.pipe(tar.x({
-      cwd: tmpDir,
-      strip: 1, // Strip the 'package' folder
-      filter: path => path.startsWith('package/dotenvx') // Only extract files within the 'package' folder
-    })).on('finish', () => {
-      // permissions
-      const dotenvxBinaryPath = path.join(tmpDir, 'dotenvx')
-      fs.chmodSync(dotenvxBinaryPath, 0o755)
-
-      // new tarball
-      execSync(`tar -czf ${tmpTarPath} -C ${tmpDir} .`)
-
-      // size of tarball
-      const stat = fs.statSync(tmpTarPath)
-      const tarballSize = stat.size
-
-      // set the response headers
-      res.setHeader('Content-Type', 'application/gzip')
-      res.setHeader('Content-Length', tarballSize)
-
-      // stream the tarball file to the response
-      const readStream = fs.createReadStream(tmpTarPath)
-      readStream.pipe(res).on('finish', () => {
-        // Cleanup the temporary directory
-        tmp.setGracefulCleanup()
-      })
-    }).on('error', error => {
-      res.status(500).send('Error occurred while extracting the file: ' + error.message)
-    })
-  } catch (error) {
-    res.status(500).send('Error occurred while fetching the file: ' + error.message)
-  }
-})
+// app.get('/v2/:os/:arch(*)', async (req, res) => {
+//   const os = req.params.os.toLowerCase()
+//   let arch = req.params.arch.toLowerCase()
+//   let version = req.query.version
+//
+//   // remove any extension from the arch parameter
+//   arch = arch.replace(/\.[^/.]+$/, '')
+//
+//   // check if version is provided
+//   if (version) {
+//     if (version.startsWith('v')) {
+//       version = version.replace(/^v/, '')
+//     }
+//   } else {
+//     version = VERSION
+//   }
+//
+//   const repo = `dotenvx-${os}-${arch}`
+//   const filename = `${repo}-${version}.tgz`
+//   const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
+//
+//   try {
+//     const response = await axios.get(registryUrl, { responseType: 'stream' })
+//     const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name
+//     const tmpTarPath = path.join(tmpDir, filename)
+//
+//     // extract the downloaded tarball to the temporary directory
+//     response.data.pipe(tar.x({
+//       cwd: tmpDir,
+//       strip: 1, // Strip the 'package' folder
+//       filter: path => path.startsWith('package/dotenvx') // Only extract files within the 'package' folder
+//     })).on('finish', () => {
+//       // permissions
+//       const dotenvxBinaryPath = path.join(tmpDir, 'dotenvx')
+//       fs.chmodSync(dotenvxBinaryPath, 0o755)
+//
+//       // new tarball
+//       execSync(`tar -czf ${tmpTarPath} -C ${tmpDir} .`)
+//
+//       // size of tarball
+//       const stat = fs.statSync(tmpTarPath)
+//       const tarballSize = stat.size
+//
+//       // set the response headers
+//       res.setHeader('Content-Type', 'application/gzip')
+//       res.setHeader('Content-Length', tarballSize)
+//
+//       // stream the tarball file to the response
+//       const readStream = fs.createReadStream(tmpTarPath)
+//       readStream.pipe(res).on('finish', () => {
+//         // Cleanup the temporary directory
+//         tmp.setGracefulCleanup()
+//       })
+//     }).on('error', error => {
+//       res.status(500).send('Error occurred while extracting the file: ' + error.message)
+//     })
+//   } catch (error) {
+//     res.status(500).send('Error occurred while fetching the file: ' + error.message)
+//   }
+// })
 
 app.get('/:os/:arch', async (req, res) => {
   const os = req.params.os.toLowerCase()
