@@ -30,9 +30,24 @@ fs.readFile(path.join(__dirname, 'VERSION'), 'utf8', (err, data) => {
   VERSION = data.trim()
 })
 
+// Read the robots.txt once at the start
+let ROBOTS = '' // hardcode for added redundancy (in case read fails somehow)
+fs.readFile(path.join(__dirname, 'robots.txt'), 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading robots.txt file', err)
+    process.exit(1) // Exit if the script cannot be read
+  }
+  ROBOTS = data.trim()
+})
+
 app.get('/', (req, res) => {
   res.type('text/plain')
   res.send(installerScript)
+})
+
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain')
+  res.send(ROBOTS)
 })
 
 app.get('/VERSION', (req, res) => {
