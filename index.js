@@ -125,7 +125,7 @@ app.get('/v2/:os/:arch(*)', async (req, res) => {
   try {
     const tmpDir = tmp.dirSync().name // create unique tmp directory
     const tmpDownloadPath = path.join(tmpDir, filename) // path for the downloaded file from npm
-    const tmpTarPath = path.join(tmpDir, 'output.tar.gz') // path for the new tarball
+    const tmpTarPath = path.join(tmpDir, 'output.tgz') // path for the new tarball
 
     // download, un-tar, grab binary, and re-tar
     const command = `
