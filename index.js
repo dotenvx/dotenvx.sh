@@ -40,32 +40,6 @@ app.get('/VERSION', (req, res) => {
   res.send(VERSION)
 })
 
-app.get('/installer.sh', (req, res) => {
-  const scriptPath = path.join(__dirname, 'installer.sh')
-
-  fs.readFile(scriptPath, 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).send('Error reading the file')
-      return
-    }
-    res.type('text/plain')
-    res.send(data)
-  })
-})
-
-app.get('/installerv2.sh', (req, res) => {
-  const scriptPath = path.join(__dirname, 'installerv2.sh')
-
-  fs.readFile(scriptPath, 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).send('Error reading the file')
-      return
-    }
-    res.type('text/plain')
-    res.send(data)
-  })
-})
-
 app.get('/install.sh', (req, res) => {
   // /install.sh?version=X.X.X&directory=.
   const version = req.query.version
@@ -90,6 +64,20 @@ app.get('/install.sh', (req, res) => {
       data = data.replace(/DIRECTORY="[^"]*"/, `DIRECTORY="${directory}"`)
     }
 
+    res.type('text/plain')
+    res.send(data)
+  })
+})
+
+// deprecated - to be replaced with install.sh
+app.get('/installer.sh', (req, res) => {
+  const scriptPath = path.join(__dirname, 'installer.sh')
+
+  fs.readFile(scriptPath, 'utf8', (err, data) => {
+    if (err) {
+      res.status(500).send('Error reading the file')
+      return
+    }
     res.type('text/plain')
     res.send(data)
   })
