@@ -129,8 +129,8 @@ app.get('/v2/:os/:arch(*)', async (req, res) => {
         strip: 1, // Strip the 'package' folder
         filter: path => path.startsWith('package/dotenvx') // Only extract files within the 'package' folder
       }))
-      .on('finish', resolve)
-      .on('error', reject)
+        .on('finish', resolve)
+        .on('error', reject)
     })
 
     // path to extracted binary
