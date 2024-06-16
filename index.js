@@ -1,7 +1,6 @@
 const express = require('express')
 const axios = require('axios')
 const path = require('path')
-const tar = require('tar')
 const tmp = require('tmp')
 const fs = require('fs')
 const { execSync } = require('child_process')
@@ -97,9 +96,10 @@ app.get('/install.sh', (req, res) => {
 })
 
 app.get('/v2/:os/:arch(*)', async (req, res) => {
-  const os = req.params.os.toLowerCase()
-  let arch = req.params.arch.toLowerCase()
+  const os = req.params.os.toLowerCase().trim()
+  let arch = req.params.arch.toLowerCase().trim()
   let version = req.query.version
+  let binaryName = 'dotenvx'
 
   // remove any extension from the arch parameter
   arch = arch.replace(/\.[^/.]+$/, '')
@@ -113,48 +113,40 @@ app.get('/v2/:os/:arch(*)', async (req, res) => {
     version = VERSION
   }
 
+  // modify binaryName if windows
+  if (os === 'windows') {
+    binaryName = 'dotenvx.exe'
+  }
+
   const repo = `dotenvx-${os}-${arch}`
   const filename = `${repo}-${version}.tgz`
   const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
 
   try {
-    const response = await axios.get(registryUrl, { responseType: 'stream' })
-    const tmpDir = tmp.dirSync().name
-    const tmpTarPath = path.join(tmpDir, filename)
+    const tmpDir = tmp.dirSync().name // create unique tmp directory
+    const tmpDownloadPath = path.join(tmpDir, filename) // path for the downloaded file from npm
+    const tmpTarPath = path.join(tmpDir, 'output.tar.gz') // path for the new tarball
 
-    // extract the downloaded tarball to the temporary directory
-    await new Promise((resolve, reject) => {
-      response.data.pipe(tar.x({
-        cwd: tmpDir,
-        strip: 1, // Strip the 'package' folder
-        filter: path => path.startsWith('package/dotenvx') // Only extract files within the 'package' folder
-      }))
-        .on('finish', resolve)
-        .on('error', reject)
-    })
+    // download, un-tar, grab binary, and re-tar
+    const command = `
+      curl -sS -L ${registryUrl} -o ${tmpDownloadPath} &&
+      tar -xzf ${tmpDownloadPath} -C ${tmpDir} --strip-components=1 package &&
+      chmod 755 ${path.join(tmpDir, binaryName)} &&
+      tar -czf ${tmpTarPath} -C ${tmpDir} ${binaryName}
+    `
+    execSync(command)
 
-    // path to extracted binary
-    const dotenvxBinaryPath = path.join(tmpDir, 'dotenvx')
-
-    // permissions
-    fs.chmodSync(dotenvxBinaryPath, 0o755)
-
-    // tar it up
-    execSync(`tar -czf ${tmpTarPath} -C ${tmpDir} .`)
-
-    // get size for content-length
+    // stat
     const stat = fs.statSync(tmpTarPath)
 
     // set headers
     res.setHeader('Content-Type', 'application/gzip')
     res.setHeader('Content-Length', stat.size)
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
 
-    // stream the tarball file to the response
+    // stream tarball to the response
     const readStream = fs.createReadStream(tmpTarPath)
-    readStream.pipe(res).on('finish', () => {
-      // heroku takes care of cleanup
-      // tmp.setGracefulCleanup()
-    })
+    readStream.pipe(res)
   } catch (error) {
     res.status(500).send('Error occurred while fetching the file: ' + error.message)
   }
