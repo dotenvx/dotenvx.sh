@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION="0.44.4"
+VERSION="0.44.5"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/install.sh"
@@ -383,6 +383,7 @@ install_dotenvx() {
 
   # let user know
   echo "[dotenvx@$VERSION] installed successfully ($(directory)/$(binary_name))"
+  echo "now type: dotenvx help"
 
   return 0
 }
