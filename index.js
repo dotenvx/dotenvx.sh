@@ -9,6 +9,16 @@ const app = express()
 const PORT = process.env.PORT || 3000
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 
+const installScriptPath = path.join(__dirname, 'install.sh')
+let installScript = ''
+fs.readFile(installScriptPath, 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading installer script', err)
+    process.exit(1) // Exit if the script cannot be read
+  }
+  installScript = data
+})
+
 // Read the installer script once at the start
 const installerScriptPath = path.join(__dirname, 'installer.sh')
 let installerScript = ''
@@ -41,8 +51,24 @@ fs.readFile(path.join(__dirname, 'robots.txt'), 'utf8', (err, data) => {
 })
 
 app.get('/', (req, res) => {
+  // /install.sh?version=X.X.X&directory=.
+  const version = req.query.version
+  const directory = req.query.directory
+
+  let result = installScript // necessary so that the global installScript is not modified by a singe user and affects all other users
+
+  // curl -sfS https://dotenvx.sh/install.sh?version=1.0.0
+  if (version) {
+    result = result.replace(/VERSION="[^"]*"/, `VERSION="${version}"`)
+  }
+
+  // curl -sfS https://dotenvx.sh/install.sh?directory=.
+  if (directory) {
+    result = result.replace(/DIRECTORY="[^"]*"/, `DIRECTORY="${directory}"`)
+  }
+
   res.type('text/plain')
-  res.send(installerScript)
+  res.send(result)
 })
 
 app.get('/robots.txt', (req, res) => {
@@ -60,42 +86,26 @@ app.get('/install.sh', (req, res) => {
   const version = req.query.version
   const directory = req.query.directory
 
-  // install.sh
-  const scriptPath = path.join(__dirname, 'install.sh')
+  let result = installScript // necessary so that the global installScript is not modified by a singe user and affects all other users
 
-  fs.readFile(scriptPath, 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).send('Error reading the file')
-      return
-    }
+  // curl -sfS https://dotenvx.sh/install.sh?version=1.0.0
+  if (version) {
+    result = result.replace(/VERSION="[^"]*"/, `VERSION="${version}"`)
+  }
 
-    // curl -sfS https://dotenvx.sh/install.sh?version=1.0.0
-    if (version) {
-      data = data.replace(/VERSION="[^"]*"/, `VERSION="${version}"`)
-    }
+  // curl -sfS https://dotenvx.sh/install.sh?directory=.
+  if (directory) {
+    result = result.replace(/DIRECTORY="[^"]*"/, `DIRECTORY="${directory}"`)
+  }
 
-    // curl -sfS https://dotenvx.sh/install.sh?directory=.
-    if (directory) {
-      data = data.replace(/DIRECTORY="[^"]*"/, `DIRECTORY="${directory}"`)
-    }
-
-    res.type('text/plain')
-    res.send(data)
-  })
+  res.type('text/plain')
+  res.send(result)
 })
 
 // deprecated - to be replaced with install.sh
 app.get('/installer.sh', (req, res) => {
-  const scriptPath = path.join(__dirname, 'installer.sh')
-
-  fs.readFile(scriptPath, 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).send('Error reading the file')
-      return
-    }
-    res.type('text/plain')
-    res.send(data)
-  })
+  res.type('text/plain')
+  res.send(installerScript)
 })
 
 app.get('/deprecated/:os/:arch', async (req, res) => {
