@@ -49,6 +49,63 @@ fs.readFile(path.join(__dirname, 'robots.txt'), 'utf8', (err, data) => {
   ROBOTS = data.trim()
 })
 
+const handleDownload = async (req, res, os) => {
+  let arch = req.params.arch.toLowerCase().trim()
+  let version = req.query.version
+  let binaryName = 'dotenvx'
+
+  // Remove any extension from the arch parameter
+  arch = arch.replace(/\.[^/.]+$/, '')
+
+  // Check if version is provided
+  if (version) {
+    if (version.startsWith('v')) {
+      version = version.replace(/^v/, '')
+    }
+  } else {
+    version = VERSION
+  }
+
+  // Modify binaryName if windows
+  if (os === 'windows') {
+    binaryName = 'dotenvx.exe'
+  }
+
+  const repo = `dotenvx-${os}-${arch}`
+  const filename = `${repo}-${version}.tgz`
+  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
+
+  try {
+    const tmpDir = tmp.dirSync().name // Create unique tmp directory
+    const tmpDownloadPath = path.join(tmpDir, filename) // Path for the downloaded file from npm
+    const tmpTarPath = path.join(tmpDir, 'output.tgz') // Path for the new tarball
+
+    // Download, un-tar, grab binary, and re-tar
+    const command = `
+      curl -sS -L ${registryUrl} -o ${tmpDownloadPath} &&
+      tar -xzf ${tmpDownloadPath} -C ${tmpDir} --strip-components=1 package &&
+      chmod 755 ${path.join(tmpDir, binaryName)} &&
+      tar -czf ${tmpTarPath} -C ${tmpDir} ${binaryName}
+    `
+    execSync(command)
+
+    // Stat
+    const stat = fs.statSync(tmpTarPath)
+
+    // Set headers
+    res.setHeader('Content-Type', 'application/gzip')
+    res.setHeader('Content-Length', stat.size)
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+
+    // Stream tarball to the response
+    const readStream = fs.createReadStream(tmpTarPath)
+    readStream.pipe(res)
+  } catch (error) {
+    console.log('error', error.message)
+    res.status(500).send('500 error')
+  }
+}
+
 app.get('/', (req, res) => {
   // /install.sh?version=X.X.X&directory=.
   const version = req.query.version
@@ -144,180 +201,15 @@ app.get('/stats/curl', async (req, res) => {
 })
 
 app.get('/darwin/:arch(*)', async (req, res) => {
-  const os = 'darwin'
-  let arch = req.params.arch.toLowerCase().trim()
-  let version = req.query.version
-  let binaryName = 'dotenvx'
-
-  // remove any extension from the arch parameter
-  arch = arch.replace(/\.[^/.]+$/, '')
-
-  // check if version is provided
-  if (version) {
-    if (version.startsWith('v')) {
-      version = version.replace(/^v/, '')
-    }
-  } else {
-    version = VERSION
-  }
-
-  // modify binaryName if windows
-  if (os === 'windows') {
-    binaryName = 'dotenvx.exe'
-  }
-
-  const repo = `dotenvx-${os}-${arch}`
-  const filename = `${repo}-${version}.tgz`
-  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
-
-  try {
-    const tmpDir = tmp.dirSync().name // create unique tmp directory
-    const tmpDownloadPath = path.join(tmpDir, filename) // path for the downloaded file from npm
-    const tmpTarPath = path.join(tmpDir, 'output.tgz') // path for the new tarball
-
-    // download, un-tar, grab binary, and re-tar
-    const command = `
-      curl -sS -L ${registryUrl} -o ${tmpDownloadPath} &&
-      tar -xzf ${tmpDownloadPath} -C ${tmpDir} --strip-components=1 package &&
-      chmod 755 ${path.join(tmpDir, binaryName)} &&
-      tar -czf ${tmpTarPath} -C ${tmpDir} ${binaryName}
-    `
-    execSync(command)
-
-    // stat
-    const stat = fs.statSync(tmpTarPath)
-
-    // set headers
-    res.setHeader('Content-Type', 'application/gzip')
-    res.setHeader('Content-Length', stat.size)
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
-
-    // stream tarball to the response
-    const readStream = fs.createReadStream(tmpTarPath)
-    readStream.pipe(res)
-  } catch (error) {
-    console.log('error', error.message)
-
-    res.status(500).send('500 error')
-  }
+  await handleDownload(req, res, 'darwin')
 })
 
 app.get('/linux/:arch(*)', async (req, res) => {
-  const os = 'linux'
-  let arch = req.params.arch.toLowerCase().trim()
-  let version = req.query.version
-  let binaryName = 'dotenvx'
-
-  // remove any extension from the arch parameter
-  arch = arch.replace(/\.[^/.]+$/, '')
-
-  // check if version is provided
-  if (version) {
-    if (version.startsWith('v')) {
-      version = version.replace(/^v/, '')
-    }
-  } else {
-    version = VERSION
-  }
-
-  // modify binaryName if windows
-  if (os === 'windows') {
-    binaryName = 'dotenvx.exe'
-  }
-
-  const repo = `dotenvx-${os}-${arch}`
-  const filename = `${repo}-${version}.tgz`
-  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
-
-  try {
-    const tmpDir = tmp.dirSync().name // create unique tmp directory
-    const tmpDownloadPath = path.join(tmpDir, filename) // path for the downloaded file from npm
-    const tmpTarPath = path.join(tmpDir, 'output.tgz') // path for the new tarball
-
-    // download, un-tar, grab binary, and re-tar
-    const command = `
-      curl -sS -L ${registryUrl} -o ${tmpDownloadPath} &&
-      tar -xzf ${tmpDownloadPath} -C ${tmpDir} --strip-components=1 package &&
-      chmod 755 ${path.join(tmpDir, binaryName)} &&
-      tar -czf ${tmpTarPath} -C ${tmpDir} ${binaryName}
-    `
-    execSync(command)
-
-    // stat
-    const stat = fs.statSync(tmpTarPath)
-
-    // set headers
-    res.setHeader('Content-Type', 'application/gzip')
-    res.setHeader('Content-Length', stat.size)
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
-
-    // stream tarball to the response
-    const readStream = fs.createReadStream(tmpTarPath)
-    readStream.pipe(res)
-  } catch (error) {
-    console.log('error', error.message)
-
-    res.status(500).send('500 error')
-  }
+  await handleDownload(req, res, 'linux')
 })
 
 app.get('/windows/:arch(*)', async (req, res) => {
-  const os = 'windows'
-  let arch = req.params.arch.toLowerCase().trim()
-  let version = req.query.version
-  let binaryName = 'dotenvx'
-
-  // remove any extension from the arch parameter
-  arch = arch.replace(/\.[^/.]+$/, '')
-
-  // check if version is provided
-  if (version) {
-    if (version.startsWith('v')) {
-      version = version.replace(/^v/, '')
-    }
-  } else {
-    version = VERSION
-  }
-
-  // modify binaryName if windows
-  if (os === 'windows') {
-    binaryName = 'dotenvx.exe'
-  }
-
-  const repo = `dotenvx-${os}-${arch}`
-  const filename = `${repo}-${version}.tgz`
-  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
-
-  try {
-    const tmpDir = tmp.dirSync().name // create unique tmp directory
-    const tmpDownloadPath = path.join(tmpDir, filename) // path for the downloaded file from npm
-    const tmpTarPath = path.join(tmpDir, 'output.tgz') // path for the new tarball
-
-    // download, un-tar, grab binary, and re-tar
-    const command = `
-      curl -sS -L ${registryUrl} -o ${tmpDownloadPath} &&
-      tar -xzf ${tmpDownloadPath} -C ${tmpDir} --strip-components=1 package &&
-      chmod 755 ${path.join(tmpDir, binaryName)} &&
-      tar -czf ${tmpTarPath} -C ${tmpDir} ${binaryName}
-    `
-    execSync(command)
-
-    // stat
-    const stat = fs.statSync(tmpTarPath)
-
-    // set headers
-    res.setHeader('Content-Type', 'application/gzip')
-    res.setHeader('Content-Length', stat.size)
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
-
-    // stream tarball to the response
-    const readStream = fs.createReadStream(tmpTarPath)
-    readStream.pipe(res)
-  } catch (error) {
-    console.log('error', error.message)
-
-    res.status(500).send('500 error')
-  }
+  await handleDownload(req, res, 'windows')
 })
 
 app.listen(PORT, () => {
