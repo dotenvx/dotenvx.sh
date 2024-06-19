@@ -179,7 +179,7 @@ app.get('/stats/curl', async (req, res) => {
   try {
     const downloadCounts = await Promise.all(
       packages.map(async (pkg) => {
-        const response = await fetch(`https://api.npmjs.org/downloads/point/last-month/${pkg}`)
+        const response = await fetch(`https://api.npmjs.org/downloads/point/last-year/${pkg}`)
         const data = await response.json()
         return data.downloads
       })
