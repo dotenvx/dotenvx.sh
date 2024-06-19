@@ -105,6 +105,41 @@ const handleDownload = async (req, res, os) => {
   }
 }
 
+const formatNumber = function (num) {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M'
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'k'
+  } else {
+    return num.toString()
+  }
+}
+
+const handleStats = async (req, res, packages) => {
+  try {
+    const downloadCounts = await Promise.all(
+      packages.map(async (pkg) => {
+        const response = await fetch(`https://api.npmjs.org/downloads/point/last-year/${pkg}`)
+        const data = await response.json()
+        return data.downloads
+      })
+    )
+
+    const totalDownloads = downloadCounts.reduce((acc, count) => acc + count, 0)
+    const formattedCount = formatNumber(totalDownloads)
+
+    res.json({
+      schemaVersion: 1,
+      label: 'downloads',
+      message: formattedCount,
+      color: 'brightgreen'
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('Error fetching download counts')
+  }
+}
+
 app.get('/', (req, res) => {
   // /install.sh?version=X.X.X&directory=.
   const version = req.query.version
@@ -176,39 +211,37 @@ app.get('/stats/curl', async (req, res) => {
     '@dotenvx/dotenvx-windows-x86_64'
   ]
 
-  // Function to format numbers
-  function formatNumber (num) {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M'
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'k'
-    } else {
-      return num.toString()
-    }
-  }
+  handleStats(req, res, packages)
+})
 
-  try {
-    const downloadCounts = await Promise.all(
-      packages.map(async (pkg) => {
-        const response = await fetch(`https://api.npmjs.org/downloads/point/last-year/${pkg}`)
-        const data = await response.json()
-        return data.downloads
-      })
-    )
+app.get('/stats/curl/darwin', async (req, res) => {
+  const packages = [
+    '@dotenvx/dotenvx-darwin-amd64',
+    '@dotenvx/dotenvx-darwin-arm64',
+    '@dotenvx/dotenvx-darwin-x86_64'
+  ]
 
-    const totalDownloads = downloadCounts.reduce((acc, count) => acc + count, 0)
-    const formattedCount = formatNumber(totalDownloads)
+  await handleStats(req, res, packages)
+})
 
-    res.json({
-      schemaVersion: 1,
-      label: 'downloads',
-      message: formattedCount,
-      color: 'brightgreen'
-    })
-  } catch (error) {
-    console.error(error)
-    res.status(500).send('Error fetching download counts')
-  }
+app.get('/stats/curl/linux', async (req, res) => {
+  const packages = [
+    '@dotenvx/dotenvx-linux-aarch64',
+    '@dotenvx/dotenvx-linux-amd64',
+    '@dotenvx/dotenvx-linux-arm64',
+    '@dotenvx/dotenvx-linux-x86_64'
+  ]
+
+  await handleStats(req, res, packages)
+})
+
+app.get('/stats/curl/windows', async (req, res) => {
+  const packages = [
+    '@dotenvx/dotenvx-windows-amd64',
+    '@dotenvx/dotenvx-windows-x86_64'
+  ]
+
+  await handleStats(req, res, packages)
 })
 
 app.get('/darwin/:arch(*)', async (req, res) => {
