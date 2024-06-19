@@ -1,5 +1,4 @@
 const express = require('express')
-const axios = require('axios')
 const path = require('path')
 const tmp = require('tmp')
 const fs = require('fs')
@@ -166,15 +165,15 @@ app.get('/installer.sh', (req, res) => {
 
 app.get('/stats/curl', async (req, res) => {
   const packages = [
-    "@dotenvx/dotenvx-darwin-amd64",
-    "@dotenvx/dotenvx-darwin-arm64",
-    "@dotenvx/dotenvx-darwin-x86_64",
-    "@dotenvx/dotenvx-linux-aarch64",
-    "@dotenvx/dotenvx-linux-amd64",
-    "@dotenvx/dotenvx-linux-arm64",
-    "@dotenvx/dotenvx-linux-x86_64",
-    "@dotenvx/dotenvx-windows-amd64",
-    "@dotenvx/dotenvx-windows-x86_64"
+    '@dotenvx/dotenvx-darwin-amd64',
+    '@dotenvx/dotenvx-darwin-arm64',
+    '@dotenvx/dotenvx-darwin-x86_64',
+    '@dotenvx/dotenvx-linux-aarch64',
+    '@dotenvx/dotenvx-linux-amd64',
+    '@dotenvx/dotenvx-linux-arm64',
+    '@dotenvx/dotenvx-linux-x86_64',
+    '@dotenvx/dotenvx-windows-amd64',
+    '@dotenvx/dotenvx-windows-x86_64'
   ]
 
   try {
@@ -190,9 +189,9 @@ app.get('/stats/curl', async (req, res) => {
 
     res.json({
       schemaVersion: 1,
-      label: "downloads",
+      label: 'downloads',
       message: totalDownloads.toString(),
-      color: "blue"
+      color: 'blue'
     })
   } catch (error) {
     console.error(error)
