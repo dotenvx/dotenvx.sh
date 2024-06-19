@@ -191,11 +191,29 @@ app.get('/stats/curl', async (req, res) => {
       schemaVersion: 1,
       label: 'downloads',
       message: totalDownloads.toString(),
-      color: 'blue'
+      color: 'green'
     })
   } catch (error) {
     console.error(error)
     res.status(500).send('Error fetching download counts')
+  }
+})
+
+app.get('/stats/docker', async (req, res) => {
+  try {
+    const response = await fetch('https://hub.docker.com/v2/repositories/dotenv/dotenvx')
+    const data = await response.json()
+    const pullCount = data.pull_count
+
+    res.json({
+      schemaVersion: 1,
+      label: 'docker pulls',
+      message: pullCount.toString(),
+      color: 'green'
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('Error fetching pull count')
   }
 })
 
