@@ -108,6 +108,41 @@ app.get('/installer.sh', (req, res) => {
   res.send(installerScript)
 })
 
+app.get('/stats/curl', async (req, res) => {
+  const packages = [
+    "@dotenvx/dotenvx-darwin-amd64",
+    "@dotenvx/dotenvx-darwin-arm64",
+    "@dotenvx/dotenvx-darwin-x86_64",
+    "@dotenvx/dotenvx-linux-aarch64",
+    "@dotenvx/dotenvx-linux-amd64",
+    "@dotenvx/dotenvx-linux-arm64",
+    "@dotenvx/dotenvx-linux-x86_64",
+    "@dotenvx/dotenvx-windows-amd64",
+    "@dotenvx/dotenvx-windows-x86_64"
+  ]
+  try {
+    const downloadCounts = await Promise.all(
+      packages.map(async (pkg) => {
+        const response = await fetch(`https://api.npmjs.org/downloads/point/last-month/${pkg}`)
+        const data = await response.json()
+        return data.downloads
+      })
+    )
+
+    const totalDownloads = downloadCounts.reduce((acc, count) => acc + count, 0)
+
+    res.json({
+      schemaVersion: 1,
+      label: "downloads",
+      message: totalDownloads.toString(),
+      color: "blue"
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('Error fetching download counts')
+  }
+})
+
 app.get('/deprecated/:os/:arch', async (req, res) => {
   const os = req.params.os.toLowerCase()
   let arch = req.params.arch.toLowerCase()
