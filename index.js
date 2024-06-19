@@ -11,21 +11,10 @@ const installScriptPath = path.join(__dirname, 'install.sh')
 let installScript = ''
 fs.readFile(installScriptPath, 'utf8', (err, data) => {
   if (err) {
-    console.error('Error reading installer script', err)
+    console.error('Error reading install.sh script', err)
     process.exit(1) // Exit if the script cannot be read
   }
   installScript = data
-})
-
-// Read the installer script once at the start
-const installerScriptPath = path.join(__dirname, 'installer.sh')
-let installerScript = ''
-fs.readFile(installerScriptPath, 'utf8', (err, data) => {
-  if (err) {
-    console.error('Error reading installer script', err)
-    process.exit(1) // Exit if the script cannot be read
-  }
-  installerScript = data
 })
 
 // Read the version file once at the start
@@ -140,12 +129,12 @@ const handleStats = async (req, res, packages) => {
   }
 }
 
-app.get('/', (req, res) => {
+const handleInstall = async (req, res) => {
   // /install.sh?version=X.X.X&directory=.
   const version = req.query.version
   const directory = req.query.directory
 
-  let result = installScript // necessary so that the global installScript is not modified by a singe user and affects all other users
+  let result = installScript // necessary so that the global installScript is not modified by a single user and affects all other users
 
   // curl -sfS https://dotenvx.sh/install.sh?version=1.0.0
   if (version) {
@@ -159,6 +148,10 @@ app.get('/', (req, res) => {
 
   res.type('text/plain')
   res.send(result)
+}
+
+app.get('/', (req, res) => {
+  handleInstall(req, res)
 })
 
 app.get('/robots.txt', (req, res) => {
@@ -172,30 +165,12 @@ app.get('/VERSION', (req, res) => {
 })
 
 app.get('/install.sh', (req, res) => {
-  // /install.sh?version=X.X.X&directory=.
-  const version = req.query.version
-  const directory = req.query.directory
-
-  let result = installScript // necessary so that the global installScript is not modified by a singe user and affects all other users
-
-  // curl -sfS https://dotenvx.sh/install.sh?version=1.0.0
-  if (version) {
-    result = result.replace(/VERSION="[^"]*"/, `VERSION="${version}"`)
-  }
-
-  // curl -sfS https://dotenvx.sh/install.sh?directory=.
-  if (directory) {
-    result = result.replace(/DIRECTORY="[^"]*"/, `DIRECTORY="${directory}"`)
-  }
-
-  res.type('text/plain')
-  res.send(result)
+  handleInstall(req, res)
 })
 
-// deprecated - to be replaced with install.sh
+// for historical purposes
 app.get('/installer.sh', (req, res) => {
-  res.type('text/plain')
-  res.send(installerScript)
+  handleInstall(req, res)
 })
 
 app.get('/stats/curl', async (req, res) => {
