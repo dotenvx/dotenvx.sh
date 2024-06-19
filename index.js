@@ -176,6 +176,17 @@ app.get('/stats/curl', async (req, res) => {
     '@dotenvx/dotenvx-windows-x86_64'
   ]
 
+  // Function to format numbers
+  function formatNumber(num) {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M'
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'k'
+    } else {
+      return num.toString()
+    }
+  }
+
   try {
     const downloadCounts = await Promise.all(
       packages.map(async (pkg) => {
@@ -186,11 +197,12 @@ app.get('/stats/curl', async (req, res) => {
     )
 
     const totalDownloads = downloadCounts.reduce((acc, count) => acc + count, 0)
+    const formattedCount = formatNumber(totalDownloads)
 
     res.json({
       schemaVersion: 1,
       label: 'downloads',
-      message: totalDownloads.toString(),
+      message: formattedCount,
       color: 'brightgreen'
     })
   } catch (error) {
