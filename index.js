@@ -7,7 +7,6 @@ const { execSync } = require('child_process')
 const app = express()
 
 const PORT = process.env.PORT || 3000
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 
 const installScriptPath = path.join(__dirname, 'install.sh')
 let installScript = ''
@@ -120,6 +119,7 @@ app.get('/stats/curl', async (req, res) => {
     "@dotenvx/dotenvx-windows-amd64",
     "@dotenvx/dotenvx-windows-x86_64"
   ]
+
   try {
     const downloadCounts = await Promise.all(
       packages.map(async (pkg) => {
@@ -143,74 +143,126 @@ app.get('/stats/curl', async (req, res) => {
   }
 })
 
-app.get('/deprecated/:os/:arch', async (req, res) => {
-  const os = req.params.os.toLowerCase()
-  let arch = req.params.arch.toLowerCase()
+app.get('/darwin/:arch(*)', async (req, res) => {
+  const os = 'darwin'
+  let arch = req.params.arch.toLowerCase().trim()
   let version = req.query.version
+  let binaryName = 'dotenvx'
 
-  // Check if version is provided and prepend 'v' if necessary
+  // remove any extension from the arch parameter
+  arch = arch.replace(/\.[^/.]+$/, '')
+
+  // check if version is provided
   if (version) {
-    if (!version.startsWith('v')) {
-      version = 'v' + version
+    if (version.startsWith('v')) {
+      version = version.replace(/^v/, '')
     }
   } else {
-    version = 'latest'
+    version = VERSION
   }
 
-  // Convert .tgz to .tar.gz
-  if (arch.endsWith('.tgz')) {
-    arch = arch.replace('.tgz', '.tar.gz')
+  // modify binaryName if windows
+  if (os === 'windows') {
+    binaryName = 'dotenvx.exe'
   }
 
-  // Default to .tar.gz if no extension is provided
-  if (!arch.includes('.')) {
-    arch += '.tar.gz'
-  }
-
-  let filename = `dotenvx-${os}-${arch}`
-  if (version !== 'latest') {
-    filename = `dotenvx-${version.replace('v', '')}-${os}-${arch}`
-  }
-
-  // Constructing the URL to which we will proxy
-  let proxyUrl
-  if (version === 'latest') {
-    // dotenvx.com/releases URL for the latest version (https://github.com/dotenvx/releases)
-    proxyUrl = `https://dotenvx.com/releases/${version}/${filename}`
-  } else {
-    // GitHub releases URL for specific versions
-    // https://github.com/dotenvx/dotenvx/releases/download/v0.6.9/dotenvx-0.6.9-darwin-amd64.tar.gz
-    proxyUrl = `https://github.com/dotenvx/dotenvx/releases/download/${version}/${filename}`
-  }
+  const repo = `dotenvx-${os}-${arch}`
+  const filename = `${repo}-${version}.tgz`
+  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
 
   try {
-    const config = {
-      responseType: 'stream'
-    }
+    const tmpDir = tmp.dirSync().name // create unique tmp directory
+    const tmpDownloadPath = path.join(tmpDir, filename) // path for the downloaded file from npm
+    const tmpTarPath = path.join(tmpDir, 'output.tgz') // path for the new tarball
 
-    // If the URL is a GitHub URL, add the Authorization header - 5,000 requests per hour
-    if (proxyUrl.includes('github.com')) {
-      config.headers = {
-        Authorization: `token ${GITHUB_TOKEN}`
-      }
-    }
+    // download, un-tar, grab binary, and re-tar
+    const command = `
+      curl -sS -L ${registryUrl} -o ${tmpDownloadPath} &&
+      tar -xzf ${tmpDownloadPath} -C ${tmpDir} --strip-components=1 package &&
+      chmod 755 ${path.join(tmpDir, binaryName)} &&
+      tar -czf ${tmpTarPath} -C ${tmpDir} ${binaryName}
+    `
+    execSync(command)
 
-    // Using axios to get a response stream
-    const response = await axios.get(proxyUrl, config)
+    // stat
+    const stat = fs.statSync(tmpTarPath)
 
-    // Setting headers for the response
-    res.setHeader('Content-Type', response.headers['content-type'])
-    res.setHeader('Content-Length', response.headers['content-length'])
+    // set headers
+    res.setHeader('Content-Type', 'application/gzip')
+    res.setHeader('Content-Length', stat.size)
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
 
-    // Piping the response stream to the client
-    response.data.pipe(res)
+    // stream tarball to the response
+    const readStream = fs.createReadStream(tmpTarPath)
+    readStream.pipe(res)
   } catch (error) {
-    res.status(500).send('Error occurred while fetching the file: ' + error.message)
+    console.log('error', error.message)
+
+    res.status(500).send('500 error')
   }
 })
 
-app.get('/:os/:arch(*)', async (req, res) => {
-  const os = req.params.os.toLowerCase().trim()
+app.get('/linux/:arch(*)', async (req, res) => {
+  const os = 'linux'
+  let arch = req.params.arch.toLowerCase().trim()
+  let version = req.query.version
+  let binaryName = 'dotenvx'
+
+  // remove any extension from the arch parameter
+  arch = arch.replace(/\.[^/.]+$/, '')
+
+  // check if version is provided
+  if (version) {
+    if (version.startsWith('v')) {
+      version = version.replace(/^v/, '')
+    }
+  } else {
+    version = VERSION
+  }
+
+  // modify binaryName if windows
+  if (os === 'windows') {
+    binaryName = 'dotenvx.exe'
+  }
+
+  const repo = `dotenvx-${os}-${arch}`
+  const filename = `${repo}-${version}.tgz`
+  const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
+
+  try {
+    const tmpDir = tmp.dirSync().name // create unique tmp directory
+    const tmpDownloadPath = path.join(tmpDir, filename) // path for the downloaded file from npm
+    const tmpTarPath = path.join(tmpDir, 'output.tgz') // path for the new tarball
+
+    // download, un-tar, grab binary, and re-tar
+    const command = `
+      curl -sS -L ${registryUrl} -o ${tmpDownloadPath} &&
+      tar -xzf ${tmpDownloadPath} -C ${tmpDir} --strip-components=1 package &&
+      chmod 755 ${path.join(tmpDir, binaryName)} &&
+      tar -czf ${tmpTarPath} -C ${tmpDir} ${binaryName}
+    `
+    execSync(command)
+
+    // stat
+    const stat = fs.statSync(tmpTarPath)
+
+    // set headers
+    res.setHeader('Content-Type', 'application/gzip')
+    res.setHeader('Content-Length', stat.size)
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+
+    // stream tarball to the response
+    const readStream = fs.createReadStream(tmpTarPath)
+    readStream.pipe(res)
+  } catch (error) {
+    console.log('error', error.message)
+
+    res.status(500).send('500 error')
+  }
+})
+
+app.get('/windows/:arch(*)', async (req, res) => {
+  const os = 'windows'
   let arch = req.params.arch.toLowerCase().trim()
   let version = req.query.version
   let binaryName = 'dotenvx'
