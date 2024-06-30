@@ -37,6 +37,16 @@ fs.readFile(path.join(__dirname, 'robots.txt'), 'utf8', (err, data) => {
   ROBOTS = data.trim()
 })
 
+// dotenvx-ext-hub
+const extHubInstallScriptPath = path.join(__dirname, 'ext/hub/install.sh')
+let extHubInstallScript = ''
+fs.readFile(extHubInstallScriptPath, 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading ext/hub/install.sh script', err)
+  }
+  extHubInstallScript = data
+})
+
 const handleDownload = async (req, res, os, name) => {
   let arch = req.params.arch.toLowerCase().trim()
   let version = req.query.version
@@ -129,7 +139,7 @@ const handleStats = async (req, res, packages) => {
   }
 }
 
-const handleInstall = async (req, res) => {
+const handleInstall = async (req, res, installScript) => {
   // /install.sh?version=X.X.X&directory=.
   const version = req.query.version
   const directory = req.query.directory
@@ -151,7 +161,7 @@ const handleInstall = async (req, res) => {
 }
 
 app.get('/', (req, res) => {
-  handleInstall(req, res)
+  handleInstall(req, res, installScript)
 })
 
 app.get('/robots.txt', (req, res) => {
@@ -165,12 +175,12 @@ app.get('/VERSION', (req, res) => {
 })
 
 app.get('/install.sh', (req, res) => {
-  handleInstall(req, res)
+  handleInstall(req, res, installScript)
 })
 
 // for historical purposes
 app.get('/installer.sh', (req, res) => {
-  handleInstall(req, res)
+  handleInstall(req, res, installScript)
 })
 
 app.get('/stats/curl', async (req, res) => {
