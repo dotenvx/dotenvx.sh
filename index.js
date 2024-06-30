@@ -183,6 +183,14 @@ app.get('/installer.sh', (req, res) => {
   handleInstall(req, res, installScript)
 })
 
+// for ext/hub
+app.get('/ext/hub', (req, res) => {
+  handleInstall(req, res, extHubInstallScript)
+})
+app.get('/ext/hub/install.sh', (req, res) => {
+  handleInstall(req, res, extHubInstallScript)
+})
+
 app.get('/stats/curl', async (req, res) => {
   const packages = [
     '@dotenvx/dotenvx-darwin-amd64',
