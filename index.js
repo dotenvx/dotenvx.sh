@@ -47,6 +47,15 @@ fs.readFile(extHubInstallScriptPath, 'utf8', (err, data) => {
   extHubInstallScript = data
 })
 
+let EXT_HUB_VERSION = '0.2.0' // hardcode for added redundancy (in case read fails somehow)
+fs.readFile(path.join(__dirname, 'ext', 'hub', 'VERSION'), 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading VERSION file', err)
+    process.exit(1) // Exit if the script cannot be read
+  }
+  EXT_HUB_VERSION = data.trim()
+})
+
 const handleDownload = async (req, res, os, name) => {
   let arch = req.params.arch.toLowerCase().trim()
   let version = req.query.version
@@ -189,6 +198,10 @@ app.get('/ext/hub', (req, res) => {
 })
 app.get('/ext/hub/install.sh', (req, res) => {
   handleInstall(req, res, extHubInstallScript)
+})
+app.get('/ext/hub/VERSION', (req, res) => {
+  res.type('text/plain')
+  res.send(EXT_HUB_VERSION)
 })
 
 app.get('/stats/curl', async (req, res) => {
