@@ -18,7 +18,7 @@ fs.readFile(installScriptPath, 'utf8', (err, data) => {
 })
 
 // Read the version file once at the start
-let VERSION = '0.44.3' // hardcode for added redundancy (in case read fails somehow)
+let VERSION = '1.4.0' // hardcode for added redundancy (in case read fails somehow)
 fs.readFile(path.join(__dirname, 'VERSION'), 'utf8', (err, data) => {
   if (err) {
     console.error('Error reading VERSION file', err)
@@ -37,10 +37,9 @@ fs.readFile(path.join(__dirname, 'robots.txt'), 'utf8', (err, data) => {
   ROBOTS = data.trim()
 })
 
-const handleDownload = async (req, res, os) => {
+const handleDownload = async (req, res, os, name) => {
   let arch = req.params.arch.toLowerCase().trim()
   let version = req.query.version
-  let binaryName = 'dotenvx'
 
   // Remove any extension from the arch parameter
   arch = arch.replace(/\.[^/.]+$/, '')
@@ -54,12 +53,13 @@ const handleDownload = async (req, res, os) => {
     version = VERSION
   }
 
+  let binaryName = name
   // Modify binaryName if windows
   if (os === 'windows') {
-    binaryName = 'dotenvx.exe'
+    binaryName = `${binaryName}.exe`
   }
 
-  const repo = `dotenvx-${os}-${arch}`
+  const repo = `${name}-${os}-${arch}`
   const filename = `${repo}-${version}.tgz`
   const registryUrl = `https://registry.npmjs.org/@dotenvx/${repo}/-/${filename}`
 
@@ -220,15 +220,15 @@ app.get('/stats/curl/windows', async (req, res) => {
 })
 
 app.get('/darwin/:arch(*)', async (req, res) => {
-  await handleDownload(req, res, 'darwin')
+  await handleDownload(req, res, 'darwin', 'dotenvx')
 })
 
 app.get('/linux/:arch(*)', async (req, res) => {
-  await handleDownload(req, res, 'linux')
+  await handleDownload(req, res, 'linux', 'dotenvx')
 })
 
 app.get('/windows/:arch(*)', async (req, res) => {
-  await handleDownload(req, res, 'windows')
+  await handleDownload(req, res, 'windows', 'dotenvx')
 })
 
 app.listen(PORT, () => {
