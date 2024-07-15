@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION=""
+VERSION="0.1.2"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/pro"
@@ -49,7 +49,7 @@ INSTALL_SCRIPT_URL="https://dotenvx.sh/pro"
 usage() {
   echo "Usage: $0 [options] [command]"
   echo ""
-  echo "install dotenvx-pro"
+  echo "install dotenvx pro"
   echo ""
   echo "Options:"
   echo "  --directory       directory to install dotenvx-pro to (default: \"/usr/local/bin\")"
