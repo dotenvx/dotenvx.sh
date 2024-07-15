@@ -37,6 +37,25 @@ fs.readFile(path.join(__dirname, 'robots.txt'), 'utf8', (err, data) => {
   ROBOTS = data.trim()
 })
 
+// dotenvx-pro
+const proInstallScriptPath = path.join(__dirname, 'pro/install.sh')
+let proInstallScript = ''
+fs.readFile(proInstallScriptPath, 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading pro/install.sh script', err)
+  }
+  proInstallScript = data
+})
+
+let PRO_VERSION = '0.1.0' // hardcode for added redundancy (in case read fails somehow)
+fs.readFile(path.join(__dirname, 'pro', 'VERSION'), 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading VERSION file', err)
+    process.exit(1) // Exit if the script cannot be read
+  }
+  PRO_VERSION = data.trim()
+})
+
 // dotenvx-ext-hub
 const extHubInstallScriptPath = path.join(__dirname, 'ext/hub/install.sh')
 let extHubInstallScript = ''
@@ -190,6 +209,18 @@ app.get('/install.sh', (req, res) => {
 // for historical purposes
 app.get('/installer.sh', (req, res) => {
   handleInstall(req, res, installScript)
+})
+
+// for pro
+app.get('/pro', (req, res) => {
+  handleInstall(req, res, proInstallScript)
+})
+app.get('/pro/install.sh', (req, res) => {
+  handleInstall(req, res, proInstallScript)
+})
+app.get('/pro/VERSION', (req, res) => {
+  res.type('text/plain')
+  res.send(PRO_VERSION)
 })
 
 // for ext/hub
