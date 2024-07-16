@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION="0.1.2"
+VERSION="0.1.3"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/pro"
@@ -52,11 +52,11 @@ usage() {
   echo "install dotenvx pro"
   echo ""
   echo "Options:"
-  echo "  --directory       directory to install dotenvx-pro to (default: \"/usr/local/bin\")"
-  echo "  --version         version of dotenvx-pro to install (default: \"$VERSION\")"
+  echo "  --directory       directory to install dotenvx pro to (default: \"/usr/local/bin\")"
+  echo "  --version         version of dotenvx pro to install (default: \"$VERSION\")"
   echo ""
   echo "Commands:"
-  echo "  install           install dotenvx-pro"
+  echo "  install           install dotenvx pro"
   echo "  help              display help"
 }
 
@@ -273,10 +273,10 @@ which_path() {
 
 # warnings* -----------------------------
 warn_of_any_conflict() {
-  local dotenvx_path="$(which_path)"
+  local dotenvx_pro_path="$(which_path)"
 
-  if [ "$dotenvx_path" != "" ] && [ "$dotenvx_path" != "$(directory)/$(binary_name)" ]; then
-    echo "[DOTENVX_CONFLICT] conflicting dotenvx-pro found at $dotenvx_path" >&2
+  if [ "$dotenvx_pro_path" != "" ] && [ "$dotenvx_pro_path" != "$(directory)/$(binary_name)" ]; then
+    echo "[DOTENVX_PRO_CONFLICT] conflicting dotenvx-pro found at $dotenvx_pro_path" >&2
     echo "? we recommend updating your path to include $(directory)" >&2
   fi
 
@@ -357,7 +357,7 @@ install() {
 
   # let user know
   echo "[dotenvx-pro@$VERSION] installed successfully ($(directory)/$(binary_name))"
-  echo "now type: dotenvx-pro help"
+  echo "now type: dotenvx pro help"
 
   return 0
 }
