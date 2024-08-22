@@ -75,6 +75,25 @@ fs.readFile(path.join(__dirname, 'ext', 'hub', 'VERSION'), 'utf8', (err, data) =
   EXT_HUB_VERSION = data.trim()
 })
 
+// dotenvx-ext-vault
+const extVaultInstallScriptPath = path.join(__dirname, 'ext/vault/install.sh')
+let extVaultInstallScript = ''
+fs.readFile(extVaultInstallScriptPath, 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading ext/vault/install.sh script', err)
+  }
+  extVaultInstallScript = data
+})
+
+let EXT_VAULT_VERSION = '0.1.0' // hardcode for added redundancy (in case read fails somehow)
+fs.readFile(path.join(__dirname, 'ext', 'vault', 'VERSION'), 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading VERSION file', err)
+    process.exit(1) // Exit if the script cannot be read
+  }
+  EXT_VAULT_VERSION = data.trim()
+})
+
 const handleDownload = async (req, res, os, name) => {
   let arch = req.params.arch.toLowerCase().trim()
   let version = req.query.version
@@ -233,6 +252,18 @@ app.get('/ext/hub/install.sh', (req, res) => {
 app.get('/ext/hub/VERSION', (req, res) => {
   res.type('text/plain')
   res.send(EXT_HUB_VERSION)
+})
+
+// for ext/vault
+app.get('/ext/vault', (req, res) => {
+  handleInstall(req, res, extVaultInstallScript)
+})
+app.get('/ext/vault/install.sh', (req, res) => {
+  handleInstall(req, res, extVaultInstallScript)
+})
+app.get('/ext/vault/VERSION', (req, res) => {
+  res.type('text/plain')
+  res.send(EXT_VAULT_VERSION)
 })
 
 app.get('/stats/curl', async (req, res) => {
