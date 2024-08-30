@@ -9,8 +9,8 @@ jobs:
       fail-fast: true
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-ruby@v2
         with:
-          node-version: 16.x
-      - run: npm install
-      - run: npm run standard
+          ruby-version: "3.3.4"
+      - run: bundle install
+      - run: bundle exec standardrb
