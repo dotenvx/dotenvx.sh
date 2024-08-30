@@ -9,7 +9,7 @@ jobs:
       fail-fast: true
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-ruby@v2
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.3.4"
       - run: bundle install
