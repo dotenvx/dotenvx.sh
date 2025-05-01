@@ -102,9 +102,11 @@ helpers do
     }.to_json
   end
 
-  def handle_install(install_script, version = nil, directory = nil)
+  def handle_install(install_script, version = nil, directory = nil, os = nil, arch = nil)
     result = install_script.dup
     result.gsub!(/VERSION="[^"]*"/, "VERSION=\"#{version}\"") if version
+    result.gsub!(/OS="[^"]*"/, "OS=\"#{os}\"") if os
+    result.gsub!(/ARCH="[^"]*"/, "ARCH=\"#{arch}\"") if arch
     result.gsub!(/DIRECTORY="[^"]*"/, "DIRECTORY=\"#{directory}\"") if directory
     result
   end
@@ -112,7 +114,7 @@ end
 
 get "/" do
   content_type "text/plain"
-  handle_install(INSTALL_SCRIPT, params["version"], params["directory"])
+  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"])
 end
 
 get "/robots.txt" do
@@ -127,24 +129,24 @@ end
 
 get "/install.sh" do
   content_type "text/plain"
-  handle_install(INSTALL_SCRIPT, params["version"], params["directory"])
+  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"])
 end
 
 # for historical purposes
 get "/installer.sh" do
   content_type "text/plain"
-  handle_install(INSTALL_SCRIPT, params["version"], params["directory"])
+  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"])
 end
 
 # for pro
 get "/pro" do
   content_type "text/plain"
-  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"])
+  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"])
 end
 
 get "/pro/install.sh" do
   content_type "text/plain"
-  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"])
+  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"])
 end
 
 get "/pro/VERSION" do
