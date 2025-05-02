@@ -108,7 +108,7 @@ helpers do
     result.gsub!(/OS="[^"]*"/, "OS=\"#{os}\"") if os
     result.gsub!(/ARCH="[^"]*"/, "ARCH=\"#{arch}\"") if arch
     result.gsub!(/DIRECTORY="[^"]*"/, "DIRECTORY=\"#{directory}\"") if directory
-    result.gsub!(/FORCE="[^"]*"/, "FORCE=\"#{directory}\"") if force
+    result.gsub!(/FORCE="[^"]*"/, "FORCE=\"#{force}\"") if force
     result
   end
 end
