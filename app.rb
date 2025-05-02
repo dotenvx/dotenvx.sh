@@ -102,19 +102,20 @@ helpers do
     }.to_json
   end
 
-  def handle_install(install_script, version = nil, directory = nil, os = nil, arch = nil)
+  def handle_install(install_script, version = nil, directory = nil, os = nil, arch = nil, force = nil)
     result = install_script.dup
     result.gsub!(/VERSION="[^"]*"/, "VERSION=\"#{version}\"") if version
     result.gsub!(/OS="[^"]*"/, "OS=\"#{os}\"") if os
     result.gsub!(/ARCH="[^"]*"/, "ARCH=\"#{arch}\"") if arch
     result.gsub!(/DIRECTORY="[^"]*"/, "DIRECTORY=\"#{directory}\"") if directory
+    result.gsub!(/FORCE="[^"]*"/, "FORCE=\"#{directory}\"") if force
     result
   end
 end
 
 get "/" do
   content_type "text/plain"
-  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"])
+  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
 end
 
 get "/robots.txt" do
@@ -129,24 +130,24 @@ end
 
 get "/install.sh" do
   content_type "text/plain"
-  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"])
+  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
 end
 
 # for historical purposes
 get "/installer.sh" do
   content_type "text/plain"
-  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"])
+  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
 end
 
 # for pro
 get "/pro" do
   content_type "text/plain"
-  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"])
+  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
 end
 
 get "/pro/install.sh" do
   content_type "text/plain"
-  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"])
+  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
 end
 
 get "/pro/VERSION" do
