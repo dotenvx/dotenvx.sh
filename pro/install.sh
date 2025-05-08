@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION="0.18.3"
+VERSION="0.19.0"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/pro"
