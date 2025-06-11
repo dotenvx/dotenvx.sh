@@ -21,6 +21,16 @@ PRO_VERSION = begin
 rescue
   "0.1.0"
 end
+DOTENV_ENTERPRISE_INSTALL_SCRIPT = begin
+  File.read(File.join(__dir__, "dotenv-enterprise/install.sh"))
+rescue
+  ""
+end
+DOTENV_ENTERPRISE_VERSION = begin
+  File.read(File.join(__dir__, "dotenv-enterprise/VERSION")).strip
+rescue
+  "0.1.0"
+end
 EXT_HUB_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "ext/hub/install.sh"))
 rescue
@@ -153,6 +163,22 @@ end
 get "/pro/VERSION" do
   content_type "text/plain"
   PRO_VERSION
+end
+
+# for dotenv-enterprise
+get "/dotenv-enterprise" do
+  content_type "text/plain"
+  handle_install(DOTENV_ENTERPRISE_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
+end
+
+get "/dotenv-enterprise/install.sh" do
+  content_type "text/plain"
+  handle_install(DOTENV_ENTERPRISE_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
+end
+
+get "/dotenv-enterprise/VERSION" do
+  content_type "text/plain"
+  DOTENV_ENTERPRISE_VERSION
 end
 
 # for ext/hub
