@@ -1,26 +1,26 @@
 #!/bin/sh
 
 set -e
-VERSION="0.24.0"
+VERSION="0.2.0"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
-INSTALL_SCRIPT_URL="https://dotenvx.sh/pro"
+INSTALL_SCRIPT_URL="https://dotenvx.sh/dotenv-enterprise"
 
 #  ./install.sh
 #  ___________________________________________________________________________________________________
 #  |                                                                                                 |
-#  |  $ dotenvx pro                                                                                  |
+#  |  $ dotenv-enterprise                                                                            |
 #  |                                                                                                 |
 #  |  ## Install                                                                                     |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
-#  |  curl -sfS https://dotenvx.sh/pro | sh                                                          |
+#  |  curl -sfS https://dotenvx.sh/dotenv-enterprise | sh                                            |
 #  |  ```                                                                                            |
 #  |                                                                                                 |
 #  |  or self-execute this file:                                                                     |
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
-#  |  curl -sfS https://dotenvx.sh/pro > install.sh                                                  |
+#  |  curl -sfS https://dotenvx.sh/dotenv-enterprise > install.sh                                    |
 #  |  chmod +x install.sh                                                                            |
 #  |  ./install.sh                                                                                   |
 #  |  ```                                                                                            |
@@ -29,10 +29,10 @@ INSTALL_SCRIPT_URL="https://dotenvx.sh/pro"
 #  |                                                                                                 |
 #  |  ```sh                                                                                          |
 #  |  # curl examples                                                                                |
-#  |  curl -sfS "https://dotenvx.sh/pro" | sudo sh                                                   |
-#  |  curl -sfS "https://dotenvx.sh/pro?version=0.44.5" | sh                                         |
-#  |  curl -sfS "https://dotenvx.sh/pro?directory=." | sh                                            |
-#  |  curl -sfS "https://dotenvx.sh/pro?directory=/custom/path&version=0.44.5" | sh                  |
+#  |  curl -sfS "https://dotenvx.sh/dotenv-enterprise" | sudo sh                                     |
+#  |  curl -sfS "https://dotenvx.sh/dotenv-enterprise?version=0.44.5" | sh                           |
+#  |  curl -sfS "https://dotenvx.sh/dotenv-enterprise?directory=." | sh                              |
+#  |  curl -sfS "https://dotenvx.sh/dotenv-enterprise?directory=/custom/path&version=0.44.5" | sh    |
 #  |                                                                                                 |
 #  |  # self-executing examples                                                                      |
 #  |  ./install.sh --version=0.44.5                                                                  |
@@ -41,7 +41,7 @@ INSTALL_SCRIPT_URL="https://dotenvx.sh/pro"
 #  |  ./install.sh --help                                                                            |
 #  |  ```                                                                                            |
 #  |                                                                                                 |
-#  |  see [`dotenvx-pro`](https://github.com/dotenvx/dotenvx-pro) for usage.                         |
+#  |  see [`dotenv-enterprise`](https://github.com/dotenvx/dotenv-enterprise) for usage.             |
 #  |                                                                                                 |
 #  |_________________________________________________________________________________________________|
 
@@ -49,14 +49,14 @@ INSTALL_SCRIPT_URL="https://dotenvx.sh/pro"
 usage() {
   echo "Usage: $0 [options] [command]"
   echo ""
-  echo "install dotenvx pro"
+  echo "install dotenv-enterprise"
   echo ""
   echo "Options:"
-  echo "  --directory       directory to install dotenvx pro to (default: \"/usr/local/bin\")"
-  echo "  --version         version of dotenvx pro to install (default: \"$VERSION\")"
+  echo "  --directory       directory to install dotenv-enterprise to (default: \"/usr/local/bin\")"
+  echo "  --version         version of dotenv-enterprise to install (default: \"$VERSION\")"
   echo ""
   echo "Commands:"
-  echo "  install           install dotenvx pro"
+  echo "  install           install dotenv-enterprise"
   echo "  help              display help"
 }
 
@@ -113,7 +113,7 @@ is_os_supported() {
   darwin) os="darwin" ;;
   *)
     echo "[INSTALLATION_FAILED] your operating system ${os} is currently unsupported"
-    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx-pro/issues]"
+    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenv-enterprise/issues]"
 
     return 1
     ;;
@@ -132,20 +132,13 @@ is_arch_supported() {
   aarch64) arch="aarch64" ;;
   *)
     echo "[INSTALLATION_FAILED] your architecture ${arch} is currently unsupported - must be x86_64, amd64, arm64, or aarch64"
-    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx-pro/issues]"
+    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenv-enterprise/issues]"
 
     return 1
     ;;
   esac
 
   return 0
-}
-
-# dotenvx checks ------------------------
-install_dotenvx_if_missing() {
-  if ! command -v dotenvx >/dev/null 2>&1; then
-    curl -sfS https://dotenvx.sh | sh
-  fi
 }
 
 # is_* checks ---------------------------
@@ -186,7 +179,7 @@ is_installed() {
     return 1
   fi
 
-  echo "[dotenvx-pro@$current_version] already installed ($(directory)/$(binary_name))"
+  echo "[@$current_version] already installed ($(directory)/$(binary_name))"
 
   # return true since version already installed
   return 0
@@ -228,13 +221,13 @@ os_arch() {
 }
 
 filename() {
-  echo "dotenvx-pro-$VERSION-$(os_arch).tar.gz"
+  echo "-$VERSION-$(os_arch).tar.gz"
 
   return 0
 }
 
 download_url() {
-  echo "$REGISTRY_URL/@dotenvx/dotenvx-pro-$(os_arch)/-/dotenvx-pro-$(os_arch)-$VERSION.tgz"
+  echo "$REGISTRY_URL/dotenv-enterprise-$(os_arch)/-/dotenv-enterprise-$(os_arch)-$VERSION.tgz"
 
   return 0
 }
@@ -251,9 +244,9 @@ progress_bar() {
 
 binary_name() {
   if $(is_windows); then
-    echo "dotenvx-pro.exe"
+    echo ".exe"
   else
-    echo "dotenvx-pro"
+    echo ""
   fi
 
   return 0
@@ -271,7 +264,7 @@ which_curl() {
 
 which_path() {
   local result
-  result=$(command -v dotenvx-pro 2>/dev/null) # capture the output without displaying it on the screen
+  result=$(command -v dotenv-enterprise 2>/dev/null) # capture the output without displaying it on the screen
 
   echo "$result"
 
@@ -280,10 +273,10 @@ which_path() {
 
 # warnings* -----------------------------
 warn_of_any_conflict() {
-  local dotenvx_pro_path="$(which_path)"
+  local dotenv_enterprise_path="$(which_path)"
 
-  if [ "$dotenvx_pro_path" != "" ] && [ "$dotenvx_pro_path" != "$(directory)/$(binary_name)" ]; then
-    echo "[DOTENVX_PRO_CONFLICT] conflicting dotenvx-pro found at $dotenvx_pro_path" >&2
+  if [ "$dotenv_enterprise_path" != "" ] && [ "$dotenv_enterprise_path" != "$(directory)/$(binary_name)" ]; then
+    echo "[DOTENV_ENTERPRISE_CONFLICT] conflicting dotenv-enterprise found at $dotenv_enterprise_path" >&2
     echo "? we recommend updating your path to include $(directory)" >&2
   fi
 
@@ -363,8 +356,8 @@ install() {
   warn_of_any_conflict
 
   # let user know
-  echo "[dotenvx-pro@$VERSION] installed successfully ($(directory)/$(binary_name))"
-  echo "now type: dotenvx pro help"
+  echo "[@$VERSION] installed successfully ($(directory)/$(binary_name))"
+  echo "now type: dotenv-enterprise help"
 
   return 0
 }
@@ -399,14 +392,11 @@ run() {
   is_os_supported
   is_arch_supported
 
-  # dotenvx checks
-  install_dotenvx_if_missing
-
   # install logic
   if [ -n "$VERSION" ]; then
     # Check if the specified version is already installed
     if is_installed "$VERSION"; then
-      echo "[dotenvx-pro@$VERSION] already installed ($(directory)/$(binary_name))"
+      echo "[@$VERSION] already installed ($(directory)/$(binary_name))"
 
       return 0
     else
@@ -414,7 +404,7 @@ run() {
     fi
   else
     if is_installed; then
-      echo "[dotenvx-pro@$VERSION] already installed ($(directory)/$(binary_name))"
+      echo "[@$VERSION] already installed ($(directory)/$(binary_name))"
 
       return 0
     else
@@ -428,4 +418,4 @@ if ! is_test_mode; then
   exit $?
 fi
 
-# "thanks for using dotenvx pro!" - mot
+# "thanks for using dotenv-enterprise!" - mot
