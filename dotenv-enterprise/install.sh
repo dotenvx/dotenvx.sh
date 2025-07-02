@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION="0.3.0"
+VERSION="0.3.1"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/dotenv-enterprise"
@@ -179,7 +179,7 @@ is_installed() {
     return 1
   fi
 
-  echo "[@$current_version] already installed ($(directory)/$(binary_name))"
+  echo "[dotenv-enterprise@$current_version] already installed ($(directory)/$(binary_name))"
 
   # return true since version already installed
   return 0
@@ -221,7 +221,7 @@ os_arch() {
 }
 
 filename() {
-  echo "-$VERSION-$(os_arch).tar.gz"
+  echo "dotenv-enterprise-$VERSION-$(os_arch).tar.gz"
 
   return 0
 }
@@ -244,9 +244,9 @@ progress_bar() {
 
 binary_name() {
   if $(is_windows); then
-    echo ".exe"
+    echo "dotenv-enterprise.exe"
   else
-    echo ""
+    echo "dotenv-enterprise"
   fi
 
   return 0
@@ -356,7 +356,7 @@ install() {
   warn_of_any_conflict
 
   # let user know
-  echo "[@$VERSION] installed successfully ($(directory)/$(binary_name))"
+  echo "[dotenv-enterprise@$VERSION] installed successfully ($(directory)/$(binary_name))"
   echo "now type: dotenv-enterprise help"
 
   return 0
@@ -396,7 +396,7 @@ run() {
   if [ -n "$VERSION" ]; then
     # Check if the specified version is already installed
     if is_installed "$VERSION"; then
-      echo "[@$VERSION] already installed ($(directory)/$(binary_name))"
+      echo "[dotenv-enterprise@$VERSION] already installed ($(directory)/$(binary_name))"
 
       return 0
     else
@@ -404,7 +404,7 @@ run() {
     fi
   else
     if is_installed; then
-      echo "[@$VERSION] already installed ($(directory)/$(binary_name))"
+      echo "[dotenv-enterprise@$VERSION] already installed ($(directory)/$(binary_name))"
 
       return 0
     else
