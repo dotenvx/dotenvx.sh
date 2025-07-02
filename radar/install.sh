@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION="0.2.3"
+VERSION="0.3.0"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/radar"
@@ -139,6 +139,13 @@ is_arch_supported() {
   esac
 
   return 0
+}
+
+# dotenvx checks ------------------------
+install_dotenvx_if_missing() {
+  if ! command -v dotenvx >/dev/null 2>&1; then
+    curl -sfS https://dotenvx.sh | sh
+  fi
 }
 
 # is_* checks ---------------------------
@@ -391,6 +398,9 @@ run() {
   is_curl_installed
   is_os_supported
   is_arch_supported
+
+  # dotenvx checks
+  install_dotenvx_if_missing
 
   # install logic
   if [ -n "$VERSION" ]; then
