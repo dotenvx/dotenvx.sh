@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION="0.2.0"
+VERSION="0.2.1"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/radar"
@@ -227,7 +227,7 @@ filename() {
 }
 
 download_url() {
-  echo "$REGISTRY_URL/dotenvx-radar-$(os_arch)/-/dotenvx-radar-$(os_arch)-$VERSION.tgz"
+  echo "$REGISTRY_URL/@dotenvx/dotenvx-radar-$(os_arch)/-/dotenvx-radar-$(os_arch)-$VERSION.tgz"
 
   return 0
 }
