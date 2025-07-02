@@ -11,6 +11,16 @@ set :port, ENV["PORT"] || 3000
 INSTALL_SCRIPT = File.read(File.join(__dir__, "install.sh"))
 VERSION = File.read(File.join(__dir__, "VERSION")).strip
 ROBOTS = File.read(File.join(__dir__, "robots.txt")).strip
+RADAR_INSTALL_SCRIPT = begin
+  File.read(File.join(__dir__, "radar/install.sh"))
+rescue
+  ""
+end
+RADAR_VERSION = begin
+  File.read(File.join(__dir__, "radar/VERSION")).strip
+rescue
+  "0.1.0"
+end
 PRO_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "pro/install.sh"))
 rescue
@@ -147,6 +157,22 @@ end
 get "/installer.sh" do
   content_type "text/plain"
   handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
+end
+
+# for radar
+get "/radar" do
+  content_type "text/plain"
+  handle_install(RADAR_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
+end
+
+get "/radar/install.sh" do
+  content_type "text/plain"
+  handle_install(RADAR_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
+end
+
+get "/radar/VERSION" do
+  content_type "text/plain"
+  RADAR_VERSION
 end
 
 # for pro
