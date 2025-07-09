@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION="0.4.1"
+VERSION="0.4.3"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/radar"
