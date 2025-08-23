@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION="0.15.2"
+VERSION="0.15.3"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/radar"
@@ -143,9 +143,13 @@ is_arch_supported() {
 
 # dotenvx checks ------------------------
 install_dotenvx_if_missing() {
-  if ! command -v dotenvx >/dev/null 2>&1; then
-    curl -sfS https://dotenvx.sh | sh
-  fi
+  # always install the latest, regardless of what is currently there
+  install_dotenvx_latest
+}
+
+install_dotenvx_latest() {
+  echo "[dotenvx] installing latest version..."
+  curl -sfS https://dotenvx.sh | sh
 }
 
 # is_* checks ---------------------------
