@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-VERSION="0.15.3"
+VERSION="0.15.5"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/radar"
@@ -148,7 +148,6 @@ install_dotenvx_if_missing() {
 }
 
 install_dotenvx_latest() {
-  echo "[dotenvx] installing latest version..."
   curl -sfS https://dotenvx.sh | sh
 }
 
