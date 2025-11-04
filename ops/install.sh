@@ -1,10 +1,13 @@
 #!/bin/sh
 
 set -e
+OS=""
+ARCH=""
 VERSION="0.15.6"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/ops"
+FORCE=""
 
 #  ./install.sh
 #  ___________________________________________________________________________________________________
@@ -52,7 +55,10 @@ usage() {
   echo "install dotenvx-ops"
   echo ""
   echo "Options:"
+  echo "  --os              override operating system (e.g., linux, darwin)"
+  echo "  --arch            override architecture (e.g., x64, arm64)"
   echo "  --directory       directory to install dotenvx-ops to (default: \"/usr/local/bin\")"
+  echo "  --force           force reinstallation even if already installed (default: false)"
   echo "  --version         version of dotenvx-ops to install (default: \"$VERSION\")"
   echo ""
   echo "Commands:"
@@ -169,6 +175,10 @@ is_windows() {
 }
 
 is_installed() {
+  if [ -n "$FORCE" ]; then
+    return 1  # force install even if it's already installed
+  fi
+
   local flagged_version="$1"
   local current_version=$("$(directory)/$(binary_name)" --version 2>/dev/null || echo "0")
 
@@ -213,15 +223,19 @@ directory() {
 }
 
 os() {
-  echo "$(uname -s | tr '[:upper:]' '[:lower:]')"
-
-  return 0
+  if [ -n "$OS" ]; then
+    echo "$OS"
+  else
+    echo "$(uname -s | tr '[:upper:]' '[:lower:]')"
+  fi
 }
 
 arch() {
-  echo "$(uname -m | tr '[:upper:]' '[:lower:]')"
-
-  return 0
+  if [ -n "$ARCH" ]; then
+    echo "$ARCH"
+  else
+    echo "$(uname -m | tr '[:upper:]' '[:lower:]')"
+  fi
 }
 
 os_arch() {
@@ -376,11 +390,20 @@ run() {
   # parse arguments
   for arg in "$@"; do
     case $arg in
+    os=* | --os=*)
+      OS="${arg#*=}"
+      ;;
+    arch=* | --arch=*)
+      ARCH="${arg#*=}"
+      ;;
     version=* | --version=*)
       VERSION="${arg#*=}"
       ;;
     directory=* | --directory=*)
       DIRECTORY="${arg#*=}"
+      ;;
+    force | --force)
+      FORCE="1"
       ;;
     help | --help)
       usage
