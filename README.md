@@ -59,4 +59,3 @@ see [`dotenvx`](https://github.com/dotenvx/dotenvx) for extended usage guides.
 
 * alternatively, install with wget `wget -qO- https://dotenvx.sh/install.sh | sh`
 * make sure you are using `https`, not `http`. We do not redirect for trust reasons.
-* currently [dotenvx.sh](https://dotenvx.sh) is hosted at Heroku
