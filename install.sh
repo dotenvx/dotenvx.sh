@@ -3,7 +3,7 @@
 set -e
 OS=""
 ARCH=""
-VERSION="1.51.4"
+VERSION="1.52.0"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh"
