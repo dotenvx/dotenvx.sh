@@ -3,7 +3,7 @@
 set -e
 OS=""
 ARCH=""
-VERSION="0.37.0"
+VERSION="0.37.1"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/ops"
@@ -386,9 +386,9 @@ install() {
   # warn of any conflict
   warn_of_any_conflict
 
-  # let user know
-  echo "⛨ installed ($VERSION–$(directory)/$(binary_name))"
-  echo ""
+  # let user know (ASCII separator avoids locale rendering issues)
+  local installed_version="${VERSION:-latest}"
+  echo "⛨ installed (${installed_version}:$(directory)/$(binary_name))"
   echo "⮕ next run [dotenvx-ops login] and then [dotenvx encrypt]"
 
   return 0
