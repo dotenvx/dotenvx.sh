@@ -3,7 +3,7 @@
 set -e
 OS=""
 ARCH=""
-VERSION="1.57.4"
+VERSION="1.57.5"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh"
@@ -214,7 +214,7 @@ is_installed() {
     return 1
   fi
 
-  echo "[dotenvx@$current_version] already installed ($(directory)/$(binary_name))"
+  echo "◈ already installed (${current_version}:$(directory)/$(binary_name))"
 
   # return true since version already installed
   return 0
@@ -447,7 +447,7 @@ run() {
   if [ -n "$VERSION" ]; then
     # Check if the specified version is already installed
     if is_installed "$VERSION"; then
-      echo "[dotenvx@$VERSION] already installed ($(directory)/$(binary_name))"
+      echo "◈ already installed (${VERSION}:$(directory)/$(binary_name))"
 
       return 0
     else
@@ -455,7 +455,7 @@ run() {
     fi
   else
     if is_installed; then
-      echo "[dotenvx@$VERSION] already installed ($(directory)/$(binary_name))"
+      echo "◈ already installed (${VERSION}:$(directory)/$(binary_name))"
 
       return 0
     else
