@@ -3,7 +3,7 @@
 set -e
 OS=""
 ARCH=""
-VERSION="0.37.9"
+VERSION="0.38.0"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/ops"
@@ -15,11 +15,11 @@ FORCE=""
 #  |   ██████╗ ██████╗ ███████╗                                                                      |
 #  |  ██╔═══██╗██╔══██╗██╔════╝                                                                      |
 #  |  ██║   ██║██████╔╝███████╗                                                                      |
-#  |  ██║   ██║██╔═══╝ ╚════██║                                                                      |
+#  |  ██║   ██║██╔═══╝ ╚════██║  [www.dotenvx.com/ops]                                               |
 #  |  ╚██████╔╝██║     ███████║                                                                      |
 #  |   ╚═════╝ ╚═╝     ╚══════╝                                                                      |
 #  |                                                                                                 |
-#  |  *ARMORED KEYS* by [`dotenvx`](https://github.com/dotenvx/dotenvx).                        |
+#  |  ⛨ ARMORED KEYS: Harden your private keys.                                                      |
 #  |                                                                                                 |
 #  |  ## Install                                                                                     |
 #  |                                                                                                 |
@@ -51,7 +51,7 @@ FORCE=""
 #  |  ./install.sh --help                                                                            |
 #  |  ```                                                                                            |
 #  |                                                                                                 |
-#  |  see [`dotenvx-ops`](https://github.com/dotenvx/dotenvx-ops) for usage.                         |
+#  |  see [`dotenvx.com/docs`](https://dotenvx.com/docs) for usage.                                  |
 #  |                                                                                                 |
 #  |_________________________________________________________________________________________________|
 
