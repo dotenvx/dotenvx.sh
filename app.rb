@@ -1,5 +1,4 @@
 # app.rb
-require "rack/logger"
 require "sinatra"
 require "tmpdir"
 require "fileutils"
