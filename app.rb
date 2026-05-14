@@ -21,46 +21,6 @@ OPS_VERSION = begin
 rescue
   "0.1.0"
 end
-RADAR_INSTALL_SCRIPT = begin
-  File.read(File.join(__dir__, "radar/install.sh"))
-rescue
-  ""
-end
-RADAR_VERSION = begin
-  File.read(File.join(__dir__, "radar/VERSION")).strip
-rescue
-  "0.1.0"
-end
-PRO_INSTALL_SCRIPT = begin
-  File.read(File.join(__dir__, "pro/install.sh"))
-rescue
-  ""
-end
-PRO_VERSION = begin
-  File.read(File.join(__dir__, "pro/VERSION")).strip
-rescue
-  "0.1.0"
-end
-DOTENV_ENTERPRISE_INSTALL_SCRIPT = begin
-  File.read(File.join(__dir__, "dotenv-enterprise/install.sh"))
-rescue
-  ""
-end
-DOTENV_ENTERPRISE_VERSION = begin
-  File.read(File.join(__dir__, "dotenv-enterprise/VERSION")).strip
-rescue
-  "0.1.0"
-end
-EXT_HUB_INSTALL_SCRIPT = begin
-  File.read(File.join(__dir__, "ext/hub/install.sh"))
-rescue
-  ""
-end
-EXT_HUB_VERSION = begin
-  File.read(File.join(__dir__, "ext/hub/VERSION")).strip
-rescue
-  "0.2.0"
-end
 EXT_VAULT_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "ext/vault/install.sh"))
 rescue
@@ -183,70 +143,6 @@ end
 get "/ops/VERSION" do
   content_type "text/plain"
   OPS_VERSION
-end
-
-# for radar
-get "/radar" do
-  content_type "text/plain"
-  handle_install(RADAR_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/radar/install.sh" do
-  content_type "text/plain"
-  handle_install(RADAR_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/radar/VERSION" do
-  content_type "text/plain"
-  RADAR_VERSION
-end
-
-# for pro
-get "/pro" do
-  content_type "text/plain"
-  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/pro/install.sh" do
-  content_type "text/plain"
-  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/pro/VERSION" do
-  content_type "text/plain"
-  PRO_VERSION
-end
-
-# for dotenv-enterprise
-get "/dotenv-enterprise" do
-  content_type "text/plain"
-  handle_install(DOTENV_ENTERPRISE_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/dotenv-enterprise/install.sh" do
-  content_type "text/plain"
-  handle_install(DOTENV_ENTERPRISE_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/dotenv-enterprise/VERSION" do
-  content_type "text/plain"
-  DOTENV_ENTERPRISE_VERSION
-end
-
-# for ext/hub
-get "/ext/hub" do
-  content_type "text/plain"
-  handle_install(EXT_HUB_INSTALL_SCRIPT, params["version"], params["directory"])
-end
-
-get "/ext/hub/install.sh" do
-  content_type "text/plain"
-  handle_install(EXT_HUB_INSTALL_SCRIPT, params["version"], params["directory"])
-end
-
-get "/ext/hub/VERSION" do
-  content_type "text/plain"
-  EXT_HUB_VERSION
 end
 
 # Ext Vault routes
