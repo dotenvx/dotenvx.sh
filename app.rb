@@ -21,16 +21,6 @@ OPS_VERSION = begin
 rescue
   "0.1.0"
 end
-RADAR_INSTALL_SCRIPT = begin
-  File.read(File.join(__dir__, "radar/install.sh"))
-rescue
-  ""
-end
-RADAR_VERSION = begin
-  File.read(File.join(__dir__, "radar/VERSION")).strip
-rescue
-  "0.1.0"
-end
 EXT_VAULT_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "ext/vault/install.sh"))
 rescue
@@ -153,22 +143,6 @@ end
 get "/ops/VERSION" do
   content_type "text/plain"
   OPS_VERSION
-end
-
-# for radar
-get "/radar" do
-  content_type "text/plain"
-  handle_install(RADAR_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/radar/install.sh" do
-  content_type "text/plain"
-  handle_install(RADAR_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/radar/VERSION" do
-  content_type "text/plain"
-  RADAR_VERSION
 end
 
 # Ext Vault routes
