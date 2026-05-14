@@ -31,16 +31,6 @@ RADAR_VERSION = begin
 rescue
   "0.1.0"
 end
-PRO_INSTALL_SCRIPT = begin
-  File.read(File.join(__dir__, "pro/install.sh"))
-rescue
-  ""
-end
-PRO_VERSION = begin
-  File.read(File.join(__dir__, "pro/VERSION")).strip
-rescue
-  "0.1.0"
-end
 DOTENV_ENTERPRISE_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "dotenv-enterprise/install.sh"))
 rescue
@@ -199,22 +189,6 @@ end
 get "/radar/VERSION" do
   content_type "text/plain"
   RADAR_VERSION
-end
-
-# for pro
-get "/pro" do
-  content_type "text/plain"
-  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/pro/install.sh" do
-  content_type "text/plain"
-  handle_install(PRO_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/pro/VERSION" do
-  content_type "text/plain"
-  PRO_VERSION
 end
 
 # for dotenv-enterprise
