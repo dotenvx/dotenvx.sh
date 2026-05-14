@@ -9,12 +9,12 @@ GEM
     lint_roller (1.1.0)
     logger (1.7.0)
     mustermann (3.1.1)
-    nio4r (2.7.3)
+    nio4r (2.7.5)
     parallel (1.26.3)
     parser (3.3.4.2)
       ast (~> 2.4.1)
       racc
-    puma (6.4.2)
+    puma (6.6.1)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.2.6)
@@ -76,7 +76,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  puma
+  puma (>= 6.4.3, < 7)
   rackup
   rexml (>= 3.4.2)
   sinatra
