@@ -135,6 +135,11 @@ get "/ops" do
   handle_install(OPS_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
 end
 
+get "/ops/" do
+  content_type "text/plain"
+  handle_install(OPS_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
+end
+
 get "/ops/install.sh" do
   content_type "text/plain"
   handle_install(OPS_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
