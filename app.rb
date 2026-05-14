@@ -31,16 +31,6 @@ RADAR_VERSION = begin
 rescue
   "0.1.0"
 end
-EXT_HUB_INSTALL_SCRIPT = begin
-  File.read(File.join(__dir__, "ext/hub/install.sh"))
-rescue
-  ""
-end
-EXT_HUB_VERSION = begin
-  File.read(File.join(__dir__, "ext/hub/VERSION")).strip
-rescue
-  "0.2.0"
-end
 EXT_VAULT_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "ext/vault/install.sh"))
 rescue
@@ -179,22 +169,6 @@ end
 get "/radar/VERSION" do
   content_type "text/plain"
   RADAR_VERSION
-end
-
-# for ext/hub
-get "/ext/hub" do
-  content_type "text/plain"
-  handle_install(EXT_HUB_INSTALL_SCRIPT, params["version"], params["directory"])
-end
-
-get "/ext/hub/install.sh" do
-  content_type "text/plain"
-  handle_install(EXT_HUB_INSTALL_SCRIPT, params["version"], params["directory"])
-end
-
-get "/ext/hub/VERSION" do
-  content_type "text/plain"
-  EXT_HUB_VERSION
 end
 
 # Ext Vault routes
