@@ -3,7 +3,7 @@
 set -e
 OS=""
 ARCH=""
-VERSION="0.49.1"
+VERSION="0.49.2"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/ops"
@@ -187,11 +187,12 @@ is_installed() {
   fi
 
   local flagged_version="$1"
-  local current_version=$("$(directory)/$(binary_name)" --version 2>/dev/null || echo "0")
+  local current_ops_version=$("$(directory)/$(binary_name_for ops)" --version 2>/dev/null || echo "0")
+  local current_vlt_version=$("$(directory)/$(binary_name_for vlt)" --version 2>/dev/null || echo "0")
 
   # if --version flag passed
   if [ -n "$flagged_version" ]; then
-    if [ "$current_version" = "$flagged_version" ]; then
+    if [ "$current_ops_version" = "$flagged_version" ] && [ "$current_vlt_version" = "$flagged_version" ]; then
       # return true since version already installed
       return 0
     else
@@ -201,12 +202,13 @@ is_installed() {
   fi
 
   # if no version flag passed
-  if [ "$current_version" != "$VERSION" ]; then
+  if [ "$current_ops_version" != "$VERSION" ] || [ "$current_vlt_version" != "$VERSION" ]; then
     # return false since latest is not installed
     return 1
   fi
 
-  echo "⛨ already installed (${current_version}:$(directory)/$(binary_name))"
+  echo "⛨ already installed (${current_ops_version}:$(directory)/$(binary_name_for ops))"
+  echo "⛨ already installed (${current_vlt_version}:$(directory)/$(binary_name_for vlt))"
 
   # return true since version already installed
   return 0
@@ -252,13 +254,25 @@ os_arch() {
 }
 
 filename() {
-  echo "dotenvx-ops-$VERSION-$(os_arch).tar.gz"
+  filename_for ops
+
+  return 0
+}
+
+filename_for() {
+  echo "dotenvx-$1-$VERSION-$(os_arch).tar.gz"
 
   return 0
 }
 
 download_url() {
-  echo "$REGISTRY_URL/@dotenvx/dotenvx-ops-$(os_arch)/-/dotenvx-ops-$(os_arch)-$VERSION.tgz"
+  download_url_for ops
+
+  return 0
+}
+
+download_url_for() {
+  echo "$REGISTRY_URL/@dotenvx/dotenvx-$1-$(os_arch)/-/dotenvx-$1-$(os_arch)-$VERSION.tgz"
 
   return 0
 }
@@ -274,10 +288,16 @@ progress_bar() {
 }
 
 binary_name() {
+  binary_name_for ops
+
+  return 0
+}
+
+binary_name_for() {
   if $(is_windows); then
-    echo "dotenvx-ops.exe"
+    echo "dotenvx-$1.exe"
   else
-    echo "dotenvx-ops"
+    echo "dotenvx-$1"
   fi
 
   return 0
@@ -294,8 +314,14 @@ which_curl() {
 }
 
 which_path() {
+  which_path_for ops
+
+  return 0
+}
+
+which_path_for() {
   local result
-  result=$(command -v dotenvx-ops 2>/dev/null) # capture the output without displaying it on the screen
+  result=$(command -v "dotenvx-$1" 2>/dev/null) # capture the output without displaying it on the screen
 
   echo "$result"
 
@@ -304,10 +330,19 @@ which_path() {
 
 # warnings* -----------------------------
 warn_of_any_conflict() {
-  local dotenvx_ops_path="$(which_path)"
+  warn_of_conflict_for ops
+  warn_of_conflict_for vlt
 
-  if [ "$dotenvx_ops_path" != "" ] && [ "$dotenvx_ops_path" != "$(directory)/$(binary_name)" ]; then
-    echo "[DOTENVX_OPS_CONFLICT] conflicting dotenvx-ops found at $dotenvx_ops_path" >&2
+  return 0
+}
+
+warn_of_conflict_for() {
+  local package="$1"
+  local package_upper="$(echo "$package" | tr '[:lower:]' '[:upper:]')"
+  local package_path="$(which_path_for "$package")"
+
+  if [ "$package_path" != "" ] && [ "$package_path" != "$(directory)/$(binary_name_for "$package")" ]; then
+    echo "[DOTENVX_${package_upper}_CONFLICT] conflicting dotenvx-$package found at $package_path" >&2
     echo "? we recommend updating your path to include $(directory)" >&2
   fi
 
@@ -356,23 +391,41 @@ install() {
   # 0. override version
   VERSION="${1:-$VERSION}"
 
+  install_binary ops
+  install_binary vlt
+
+  # warn of any conflict
+  warn_of_any_conflict
+
+  # let user know
+  local installed_version="${VERSION:-latest}"
+  echo "⛨ installed (${installed_version}:$(directory)/$(binary_name_for ops))"
+  echo "⛨ installed (${installed_version}:$(directory)/$(binary_name_for vlt))"
+  echo "⮕ next run [dotenvx-vlt login] and then [dotenvx encrypt]"
+
+  return 0
+}
+
+install_binary() {
+  local package="$1"
+
   # 1. setup tmpdir
   local tmpdir=$(command mktemp -d)
   local pipe="$tmpdir/pipe"
   mkfifo "$pipe"
 
   install_failed_cleanup() {
-    echo "[INSTALLATION_FAILED] failed to download from registry [$(download_url)]"
+    echo "[INSTALLATION_FAILED] failed to download from registry [$(download_url_for "$package")]"
     echo "? verify the download url and try downloading manually"
     rm -r "$tmpdir"
   }
 
   # Start curl in the background and redirect output to the pipe
-  curl $(progress_bar) --fail -L --proto '=https' "$(download_url)" > "$pipe" &
+  curl $(progress_bar) --fail -L --proto '=https' "$(download_url_for "$package")" > "$pipe" &
   curl_pid=$!
 
   # Start tar in the background to read from the pipe
-  sh -c "tar xz --directory $(directory) --strip-components=1 -f '$pipe' 'package/$(binary_name)'" &
+  sh -c "tar xz --directory $(directory) --strip-components=1 -f '$pipe' 'package/$(binary_name_for "$package")'" &
   tar_pid=$!
 
   if ! wait $curl_pid || ! wait $tar_pid; then
@@ -382,14 +435,6 @@ install() {
 
   # 3. clean up
   rm -r "$tmpdir"
-
-  # warn of any conflict
-  warn_of_any_conflict
-
-  # let user know
-  local installed_version="${VERSION:-latest}"
-  echo "⛨ installed (${installed_version}:$(directory)/$(binary_name))"
-  echo "⮕ next run [dotenvx-ops login] and then [dotenvx encrypt]"
 
   return 0
 }
@@ -440,7 +485,8 @@ run() {
   if [ -n "$VERSION" ]; then
     # Check if the specified version is already installed
     if is_installed "$VERSION"; then
-      echo "⛨ already installed (${VERSION}:$(directory)/$(binary_name))"
+      echo "⛨ already installed (${VERSION}:$(directory)/$(binary_name_for ops))"
+      echo "⛨ already installed (${VERSION}:$(directory)/$(binary_name_for vlt))"
 
       return 0
     else
@@ -448,8 +494,6 @@ run() {
     fi
   else
     if is_installed; then
-      echo "⛨ already installed (${VERSION}:$(directory)/$(binary_name))"
-
       return 0
     else
       install
