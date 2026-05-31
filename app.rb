@@ -31,6 +31,16 @@ VLT_VERSION = begin
 rescue
   "0.1.0"
 end
+ARMOR_INSTALL_SCRIPT = begin
+  File.read(File.join(__dir__, "armor/install.sh"))
+rescue
+  ""
+end
+ARMOR_VERSION = begin
+  File.read(File.join(__dir__, "armor/VERSION")).strip
+rescue
+  "0.1.0"
+end
 EXT_VAULT_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "ext/vault/install.sh"))
 rescue
@@ -179,6 +189,27 @@ end
 get "/vlt/VERSION" do
   content_type "text/plain"
   VLT_VERSION
+end
+
+# for armor
+get "/armor" do
+  content_type "text/plain"
+  handle_install(ARMOR_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
+end
+
+get "/armor/" do
+  content_type "text/plain"
+  handle_install(ARMOR_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
+end
+
+get "/armor/install.sh" do
+  content_type "text/plain"
+  handle_install(ARMOR_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
+end
+
+get "/armor/VERSION" do
+  content_type "text/plain"
+  ARMOR_VERSION
 end
 
 # Ext Vault routes
