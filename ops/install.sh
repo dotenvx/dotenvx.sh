@@ -3,22 +3,21 @@
 set -e
 OS=""
 ARCH=""
-VERSION="0.51.1"
+VERSION="0.52.0"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/ops"
 FORCE=""
 
 #  ./install.sh
-#  ___________________________________________________________________________________________________
-#  |                                                                                                 |
-#  |  ██╗   ██╗██╗  ████████╗                                                                        |
-#  |  ██║   ██║██║  ╚══██╔══╝                                                                        |
-#  |  ██║   ██║██║     ██║                                                                           |
-#  |  ╚██╗ ██╔╝██║     ██║       [www.dotenvx.com/vlt]                                               |
-#  |   ╚████╔╝ ███████╗██║                                                                           |
-#  |    ╚═══╝  ╚══════╝╚═╝                                                                           |
-#  |                                                                                                 |
+#   _________________________________________________________________________________________________ 
+#  |                                                                              __ ____ __         |
+#  |  ____        _                             _                                |    ||    |        |
+#  | |  _ \  ___ | |_ ___ _ ____   ____  __    / \   _ __ _ __ ___   ___  _ __   |  __||__  |        |
+#  | | | | |/ _ \| __/ _ \ '_ \ \ / /\ \/ /   / _ \ | '__| '_ ` _ \ / _ \| '__|  |  ‾‾||‾‾  |        |
+#  | | |_| | (_) | ||  __/ | | \ V /  >  <   / ___ \| |  | | | | | | (_) | |     |    ||    |        |
+#  | |____/ \___/ \__\___|_| |_|\_/  /_/\_\ /_/   \_\_|  |_| |_| |_|\___/|_|      ⟍   ||   ⟋         |
+#  |                                                                                ⟍ __ ⟋           |
 #  |  ⛨ ARMORED KEYS: Harden your private keys.                                                      |
 #  |                                                                                                 |
 #  |  ## Install                                                                                     |
@@ -188,11 +187,11 @@ is_installed() {
 
   local flagged_version="$1"
   local current_ops_version=$("$(directory)/$(binary_name_for ops)" --version 2>/dev/null || echo "0")
-  local current_vlt_version=$("$(directory)/$(binary_name_for vlt)" --version 2>/dev/null || echo "0")
+  local current_armor_version=$("$(directory)/$(binary_name_for armor)" --version 2>/dev/null || echo "0")
 
   # if --version flag passed
   if [ -n "$flagged_version" ]; then
-    if [ "$current_ops_version" = "$flagged_version" ] && [ "$current_vlt_version" = "$flagged_version" ]; then
+    if [ "$current_ops_version" = "$flagged_version" ] && [ "$current_armor_version" = "$flagged_version" ]; then
       # return true since version already installed
       return 0
     else
@@ -202,13 +201,13 @@ is_installed() {
   fi
 
   # if no version flag passed
-  if [ "$current_ops_version" != "$VERSION" ] || [ "$current_vlt_version" != "$VERSION" ]; then
+  if [ "$current_ops_version" != "$VERSION" ] || [ "$current_armor_version" != "$VERSION" ]; then
     # return false since latest is not installed
     return 1
   fi
 
   echo "⛨ already installed (${current_ops_version}:$(directory)/$(binary_name_for ops))"
-  echo "⛨ already installed (${current_vlt_version}:$(directory)/$(binary_name_for vlt))"
+  echo "⛨ already installed (${current_armor_version}:$(directory)/$(binary_name_for armor))"
 
   # return true since version already installed
   return 0
@@ -331,7 +330,7 @@ which_path_for() {
 # warnings* -----------------------------
 warn_of_any_conflict() {
   warn_of_conflict_for ops
-  warn_of_conflict_for vlt
+  warn_of_conflict_for armor
 
   return 0
 }
@@ -392,7 +391,7 @@ install() {
   VERSION="${1:-$VERSION}"
 
   install_binary ops
-  install_binary vlt
+  install_binary armor
 
   # warn of any conflict
   warn_of_any_conflict
@@ -400,8 +399,8 @@ install() {
   # let user know
   local installed_version="${VERSION:-latest}"
   echo "⛨ installed (${installed_version}:$(directory)/$(binary_name_for ops))"
-  echo "⛨ installed (${installed_version}:$(directory)/$(binary_name_for vlt))"
-  echo "⮕ next run [dotenvx-vlt login] and then [dotenvx encrypt]"
+  echo "⛨ installed (${installed_version}:$(directory)/$(binary_name_for armor))"
+  echo "⮕ next run [dotenvx-armor login] and then [dotenvx encrypt]"
 
   return 0
 }
@@ -486,7 +485,7 @@ run() {
     # Check if the specified version is already installed
     if is_installed "$VERSION"; then
       echo "⛨ already installed (${VERSION}:$(directory)/$(binary_name_for ops))"
-      echo "⛨ already installed (${VERSION}:$(directory)/$(binary_name_for vlt))"
+      echo "⛨ already installed (${VERSION}:$(directory)/$(binary_name_for armor))"
 
       return 0
     else
