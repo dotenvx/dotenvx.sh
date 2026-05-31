@@ -3,7 +3,7 @@
 set -e
 OS=""
 ARCH=""
-VERSION="0.52.0"
+VERSION="0.52.1"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/vlt"
@@ -58,17 +58,17 @@ FORCE=""
 usage() {
   echo "Usage: $0 [options] [command]"
   echo ""
-  echo "install dotenvx-vlt"
+  echo "install dotenvx-armor"
   echo ""
   echo "Options:"
   echo "  --os              override operating system (e.g., linux, darwin)"
   echo "  --arch            override architecture (e.g., x64, arm64)"
-  echo "  --directory       directory to install dotenvx-vlt to (default: \"/usr/local/bin\")"
+  echo "  --directory       directory to install dotenvx-armor to (default: \"/usr/local/bin\")"
   echo "  --force           force reinstallation even if already installed (default: false)"
-  echo "  --version         version of dotenvx-vlt to install (default: \"$VERSION\")"
+  echo "  --version         version of dotenvx-armor to install (default: \"$VERSION\")"
   echo ""
   echo "Commands:"
-  echo "  install           install dotenvx-vlt"
+  echo "  install           install dotenvx-armor"
   echo "  help              display help"
 }
 
@@ -125,7 +125,7 @@ is_os_supported() {
   darwin) os="darwin" ;;
   *)
     echo "[INSTALLATION_FAILED] your operating system ${os} is currently unsupported"
-    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx-vlt/issues]"
+    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx-armor/issues]"
 
     return 1
     ;;
@@ -144,7 +144,7 @@ is_arch_supported() {
   aarch64) arch="aarch64" ;;
   *)
     echo "[INSTALLATION_FAILED] your architecture ${arch} is currently unsupported - must be x86_64, amd64, arm64, or aarch64"
-    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx-vlt/issues]"
+    echo "? request support by opening an issue at [https://github.com/dotenvx/dotenvx-armor/issues]"
 
     return 1
     ;;
@@ -400,7 +400,7 @@ install() {
   local installed_version="${VERSION:-latest}"
   echo "⛨ installed (${installed_version}:$(directory)/$(binary_name_for vlt))"
   echo "⛨ installed (${installed_version}:$(directory)/$(binary_name_for armor))"
-  echo "⮕ next run [dotenvx-vlt login] and then [dotenvx encrypt]"
+  echo "⮕ next run [dotenvx-armor login] and then [dotenvx encrypt]"
 
   return 0
 }
@@ -505,4 +505,4 @@ if ! is_test_mode; then
   exit $?
 fi
 
-# "thanks for using dotenvx-vlt!" - mot
+# "thanks for using dotenvx-armor!" - mot
