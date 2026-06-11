@@ -3,7 +3,7 @@
 set -e
 OS=""
 ARCH=""
-VERSION="0.54.4"
+VERSION="0.55.0"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh/armor"
