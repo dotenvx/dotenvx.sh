@@ -21,16 +21,6 @@ OPS_VERSION = begin
 rescue
   "0.1.0"
 end
-VLT_INSTALL_SCRIPT = begin
-  File.read(File.join(__dir__, "vlt/install.sh"))
-rescue
-  ""
-end
-VLT_VERSION = begin
-  File.read(File.join(__dir__, "vlt/VERSION")).strip
-rescue
-  "0.1.0"
-end
 ARMOR_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "armor/install.sh"))
 rescue
@@ -168,27 +158,6 @@ end
 get "/ops/VERSION" do
   content_type "text/plain"
   OPS_VERSION
-end
-
-# for vlt
-get "/vlt" do
-  content_type "text/plain"
-  handle_install(VLT_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/vlt/" do
-  content_type "text/plain"
-  handle_install(VLT_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/vlt/install.sh" do
-  content_type "text/plain"
-  handle_install(VLT_INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-get "/vlt/VERSION" do
-  content_type "text/plain"
-  VLT_VERSION
 end
 
 # for armor
