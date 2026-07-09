@@ -3,7 +3,7 @@
 set -e
 OS=""
 ARCH=""
-VERSION="2.3.1"
+VERSION="2.3.2"
 DIRECTORY="/usr/local/bin"
 REGISTRY_URL="https://registry.npmjs.org"
 INSTALL_SCRIPT_URL="https://dotenvx.sh"
@@ -43,14 +43,14 @@ FORCE=""
 #  |  ```sh                                                                                          |
 #  |  # curl examples                                                                                |
 #  |  curl -sfS "https://dotenvx.sh" | sudo sh                                                       |
-#  |  curl -sfS "https://dotenvx.sh?version=1.41.0" | sh                                             |
+#  |  curl -sfS "https://dotenvx.sh?version=2.3.1" | sh                                              |
 #  |  curl -sfS "https://dotenvx.sh?directory=." | sh                                                |
-#  |  curl -sfS "https://dotenvx.sh?directory=/custom/path&version=1.41.0" | sh                      |
+#  |  curl -sfS "https://dotenvx.sh?directory=/custom/path&version=2.3.1" | sh                       |
 #  |                                                                                                 |
 #  |  # self-executing examples                                                                      |
-#  |  ./install.sh --version=1.41.0                                                                  |
+#  |  ./install.sh --version=2.3.1                                                                   |
 #  |  ./install.sh --directory=.                                                                     |
-#  |  ./install.sh --directory=/custom/path --version=1.41.0                                         |
+#  |  ./install.sh --directory=/custom/path --version=2.3.1                                          |
 #  |  ./install.sh --help                                                                            |
 #  |  ```                                                                                            |
 #  |                                                                                                 |
