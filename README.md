@@ -1,4 +1,4 @@
-![curl -sfS https://dotenvx.sh/ | sh](https://dotenvx.com/binary-banner.png)
+[![dotenvx](https://dotenvx.com/banner.png)](https://dotenvx.com)
 ```sh
 curl -sfS https://dotenvx.sh | sh
 ```
