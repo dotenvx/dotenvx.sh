@@ -1,7 +1,5 @@
 # app.rb
 require "sinatra"
-require "tmpdir"
-require "fileutils"
 require "open-uri"
 
 set :server, :puma
@@ -10,6 +8,7 @@ set :port, ENV["PORT"] || 3000
 # Load install scripts, version files, and other assets at startup
 INSTALL_SCRIPT = File.read(File.join(__dir__, "install.sh"))
 VERSION = File.read(File.join(__dir__, "VERSION")).strip
+GITHUB_RELEASES_URL = "https://github.com/dotenvx/dotenvx/releases/download"
 ROBOTS = File.read(File.join(__dir__, "robots.txt")).strip
 OPS_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "ops/install.sh"))
@@ -43,35 +42,15 @@ rescue
 end
 
 helpers do
-  def handle_download(os, name, arch, version = nil)
+  def handle_download(os, arch, version = nil)
     arch = arch.gsub(/\.[^\/.]+$/, "").downcase.strip
-    version ||= VERSION
-    version = version.sub(/^v/, "") if version.start_with?("v")
+    version = (version || VERSION).delete_prefix("v")
 
-    binary_name = (os == "windows") ? "#{name}.exe" : name
-    repo = "#{name}-#{os}-#{arch}"
-    filename = "#{repo}-#{version}.tgz"
-    registry_url = "https://registry.npmjs.org/@dotenvx/#{repo}/-/#{filename}"
+    halt 404 unless arch.match?(/\A[a-z0-9_]+\z/)
+    halt 400, "Invalid version" unless version.match?(/\A\d+\.\d+\.\d+(?:-[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)?\z/)
 
-    Dir.mktmpdir do |tmp_dir|
-      tmp_download_path = File.join(tmp_dir, filename)
-      tmp_tar_path = File.join(tmp_dir, "output.tgz")
-
-      command = <<~SH
-        curl -sS -L #{registry_url} -o #{tmp_download_path} &&
-        tar -xzf #{tmp_download_path} -C #{tmp_dir} --strip-components=1 package &&
-        chmod 755 #{File.join(tmp_dir, binary_name)} &&
-        tar -czf #{tmp_tar_path} -C #{tmp_dir} #{binary_name}
-      SH
-
-      system(command)
-
-      if File.exist?(tmp_tar_path)
-        send_file tmp_tar_path, filename: filename, type: "application/gzip"
-      else
-        halt 500, "500 error"
-      end
-    end
+    filename = "dotenvx-#{version}-#{os}-#{arch}.tar.gz"
+    redirect "#{GITHUB_RELEASES_URL}/v#{version}/#{filename}"
   end
 
   def format_number(num)
@@ -241,15 +220,15 @@ end
 
 get "/darwin/*" do
   arch = params["splat"].first
-  handle_download("darwin", "dotenvx", arch, params["version"])
+  handle_download("darwin", arch, params["version"])
 end
 
 get "/linux/*" do
   arch = params["splat"].first
-  handle_download("linux", "dotenvx", arch, params["version"])
+  handle_download("linux", arch, params["version"])
 end
 
 get "/windows/*" do
   arch = params["splat"].first
-  handle_download("windows", "dotenvx", arch, params["version"])
+  handle_download("windows", arch, params["version"])
 end
