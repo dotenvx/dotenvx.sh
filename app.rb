@@ -1,6 +1,8 @@
 # app.rb
 require "sinatra"
 require "open-uri"
+require "fileutils"
+require "tmpdir"
 
 set :server, :puma
 set :port, ENV["PORT"] || 3000
@@ -50,7 +52,31 @@ helpers do
     halt 400, "Invalid version" unless version.match?(/\A\d+\.\d+\.\d+(?:-[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)?\z/)
 
     filename = "dotenvx-#{version}-#{os}-#{arch}.tar.gz"
-    redirect "#{GITHUB_RELEASES_URL}/v#{version}/#{filename}"
+    url = "#{GITHUB_RELEASES_URL}/v#{version}/#{filename}"
+    binary = (os == "windows") ? "dotenvx.exe" : "dotenvx"
+    download_name = "dotenvx-#{os}-#{arch}-#{version}.tgz"
+    directory = Dir.mktmpdir
+    release_path = File.join(directory, filename)
+    download_path = File.join(directory, download_name)
+
+    fetched = system("curl", "-fsSL", "--proto", "=https", "--max-time", "60", "-o", release_path, url)
+    halt 502, "Could not download release archive" unless fetched
+
+    unpacked = system("tar", "-xzf", release_path, "-C", directory)
+    halt 502, "Invalid release archive" unless unpacked && File.file?(File.join(directory, binary))
+
+    File.chmod(0o755, File.join(directory, binary))
+    packed = system({"COPYFILE_DISABLE" => "1"}, "tar", "--format", "ustar", "-czf", download_path, "-C", directory, binary)
+    halt 500, "Could not package download" unless packed
+
+    content_type "application/gzip"
+    attachment download_name
+    file = Rack::Files.new(directory, {"content-type" => "application/gzip"})
+    status, file_headers, file_body = file.serving(request, download_path)
+    download_body = Rack::BodyProxy.new(file_body) { FileUtils.remove_entry(directory) }
+    halt status, file_headers, download_body
+  ensure
+    FileUtils.remove_entry(directory) if directory && !download_body
   end
 
   def format_number(num)
