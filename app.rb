@@ -1,8 +1,8 @@
 # app.rb
 require "sinatra"
-require "tmpdir"
-require "fileutils"
 require "open-uri"
+require "fileutils"
+require "tmpdir"
 
 set :server, :puma
 set :port, ENV["PORT"] || 3000
@@ -10,6 +10,7 @@ set :port, ENV["PORT"] || 3000
 # Load install scripts, version files, and other assets at startup
 INSTALL_SCRIPT = File.read(File.join(__dir__, "install.sh"))
 VERSION = File.read(File.join(__dir__, "VERSION")).strip
+GITHUB_RELEASES_URL = "https://github.com/dotenvx/dotenvx/releases/download"
 ROBOTS = File.read(File.join(__dir__, "robots.txt")).strip
 OPS_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "ops/install.sh"))
@@ -43,35 +44,39 @@ rescue
 end
 
 helpers do
-  def handle_download(os, name, arch, version = nil)
+  def handle_download(os, arch, version = nil)
     arch = arch.gsub(/\.[^\/.]+$/, "").downcase.strip
-    version ||= VERSION
-    version = version.sub(/^v/, "") if version.start_with?("v")
+    version = (version || VERSION).delete_prefix("v")
 
-    binary_name = (os == "windows") ? "#{name}.exe" : name
-    repo = "#{name}-#{os}-#{arch}"
-    filename = "#{repo}-#{version}.tgz"
-    registry_url = "https://registry.npmjs.org/@dotenvx/#{repo}/-/#{filename}"
+    halt 404 unless arch.match?(/\A[a-z0-9_]+\z/)
+    halt 400, "Invalid version" unless version.match?(/\A\d+\.\d+\.\d+(?:-[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)?\z/)
 
-    Dir.mktmpdir do |tmp_dir|
-      tmp_download_path = File.join(tmp_dir, filename)
-      tmp_tar_path = File.join(tmp_dir, "output.tgz")
+    filename = "dotenvx-#{version}-#{os}-#{arch}.tar.gz"
+    url = "#{GITHUB_RELEASES_URL}/v#{version}/#{filename}"
+    binary = (os == "windows") ? "dotenvx.exe" : "dotenvx"
+    download_name = "dotenvx-#{os}-#{arch}-#{version}.tgz"
+    directory = Dir.mktmpdir
+    release_path = File.join(directory, filename)
+    download_path = File.join(directory, download_name)
 
-      command = <<~SH
-        curl -sS -L #{registry_url} -o #{tmp_download_path} &&
-        tar -xzf #{tmp_download_path} -C #{tmp_dir} --strip-components=1 package &&
-        chmod 755 #{File.join(tmp_dir, binary_name)} &&
-        tar -czf #{tmp_tar_path} -C #{tmp_dir} #{binary_name}
-      SH
+    fetched = system("curl", "-fsSL", "--proto", "=https", "--max-time", "60", "-o", release_path, url)
+    halt 502, "Could not download release archive" unless fetched
 
-      system(command)
+    unpacked = system("tar", "-xzf", release_path, "-C", directory)
+    halt 502, "Invalid release archive" unless unpacked && File.file?(File.join(directory, binary))
 
-      if File.exist?(tmp_tar_path)
-        send_file tmp_tar_path, filename: filename, type: "application/gzip"
-      else
-        halt 500, "500 error"
-      end
-    end
+    File.chmod(0o755, File.join(directory, binary))
+    packed = system({"COPYFILE_DISABLE" => "1"}, "tar", "--format", "ustar", "-czf", download_path, "-C", directory, binary)
+    halt 500, "Could not package download" unless packed
+
+    content_type "application/gzip"
+    attachment download_name
+    file = Rack::Files.new(directory, {"content-type" => "application/gzip"})
+    status, file_headers, file_body = file.serving(request, download_path)
+    download_body = Rack::BodyProxy.new(file_body) { FileUtils.remove_entry(directory) }
+    halt status, file_headers, download_body
+  ensure
+    FileUtils.remove_entry(directory) if directory && !download_body
   end
 
   def format_number(num)
@@ -241,15 +246,15 @@ end
 
 get "/darwin/*" do
   arch = params["splat"].first
-  handle_download("darwin", "dotenvx", arch, params["version"])
+  handle_download("darwin", arch, params["version"])
 end
 
 get "/linux/*" do
   arch = params["splat"].first
-  handle_download("linux", "dotenvx", arch, params["version"])
+  handle_download("linux", arch, params["version"])
 end
 
 get "/windows/*" do
   arch = params["splat"].first
-  handle_download("windows", "dotenvx", arch, params["version"])
+  handle_download("windows", arch, params["version"])
 end
