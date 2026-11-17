@@ -111,7 +111,7 @@ helpers do
 
   def handle_dotenvx_install
     version = params["version"]
-    if version.is_a?(String) && version.match?(/\Av?0\.4\.[0-9]+\z/)
+    if version.is_a?(String) && version.match?(/\Av?(?:0\.4\.[0-9]+|(?:[3-9]|[1-9][0-9]+)\.[0-9]+\.[0-9]+)\z/)
       return fetch_installer(version.delete_prefix("v"))
     end
 
@@ -120,7 +120,7 @@ helpers do
 
   def fetch_installer(version)
     url = URI(INSTALLER_URL)
-    options = params.slice("directory", "build", "force")
+    options = params.slice("directory", "build", "force", "os", "arch")
     halt 400, "Invalid installer options" unless options.values.all? { |value| value.is_a?(String) }
 
     url.query = URI.encode_www_form(options.merge("version" => version))
