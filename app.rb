@@ -1,5 +1,6 @@
 # app.rb
 require "sinatra"
+require "net/http"
 require "open-uri"
 require "fileutils"
 require "tmpdir"
@@ -11,6 +12,7 @@ set :port, ENV["PORT"] || 3000
 INSTALL_SCRIPT = File.read(File.join(__dir__, "install.sh"))
 VERSION = File.read(File.join(__dir__, "VERSION")).strip
 GITHUB_RELEASES_URL = "https://github.com/dotenvx/dotenvx/releases/download"
+INSTALLER_URL = "https://install.dotenvx.com/install.sh"
 ROBOTS = File.read(File.join(__dir__, "robots.txt")).strip
 OPS_INSTALL_SCRIPT = begin
   File.read(File.join(__dir__, "ops/install.sh"))
@@ -107,6 +109,34 @@ helpers do
     }.to_json
   end
 
+  def handle_dotenvx_install
+    version = params["version"]
+    if version.is_a?(String) && version.match?(/\Av?0\.4\.[0-9]+\z/)
+      return fetch_installer(version.delete_prefix("v"))
+    end
+
+    handle_install(INSTALL_SCRIPT, version, params["directory"], params["os"], params["arch"], params["force"])
+  end
+
+  def fetch_installer(version)
+    url = URI(INSTALLER_URL)
+    options = params.slice("directory", "build", "force")
+    halt 400, "Invalid installer options" unless options.values.all? { |value| value.is_a?(String) }
+
+    url.query = URI.encode_www_form(options.merge("version" => version))
+    headers "Cache-Control" => "no-store"
+    response = Net::HTTP.start(url.host, url.port, use_ssl: true, open_timeout: 5, read_timeout: 10, max_retries: 0) do |http|
+      http.get(url.request_uri)
+    end
+
+    halt 404, "Installer not found" if response.is_a?(Net::HTTPNotFound)
+    halt 502, "Could not fetch installer" unless response.is_a?(Net::HTTPOK)
+
+    response.body
+  rescue Timeout::Error, SocketError, SystemCallError, IOError, OpenSSL::SSL::SSLError, Net::HTTPBadResponse
+    halt 502, "Could not fetch installer"
+  end
+
   def handle_install(install_script, version = nil, directory = nil, os = nil, arch = nil, force = nil)
     result = install_script.dup
     result.gsub!(/VERSION="[^"]*"/, "VERSION=\"#{version}\"") if version
@@ -118,9 +148,11 @@ helpers do
   end
 end
 
-get "/" do
-  content_type "text/plain"
-  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
+%w[/ /install.sh /installer.sh].each do |path|
+  get path do
+    content_type "text/plain"
+    handle_dotenvx_install
+  end
 end
 
 get "/robots.txt" do
@@ -131,17 +163,6 @@ end
 get "/VERSION" do
   content_type "text/plain"
   VERSION
-end
-
-get "/install.sh" do
-  content_type "text/plain"
-  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
-end
-
-# for historical purposes
-get "/installer.sh" do
-  content_type "text/plain"
-  handle_install(INSTALL_SCRIPT, params["version"], params["directory"], params["os"], params["arch"], params["force"])
 end
 
 # for ops
